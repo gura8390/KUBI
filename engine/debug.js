@@ -1,4 +1,4 @@
-// Debug Panel
+// Debug Panel - Enhanced
 var DebugPanel = {
     visible: false,
     godMode: false,
@@ -12,12 +12,16 @@ var DebugPanel = {
     createPanel: function() {
         var p = document.createElement('div');
         p.id = 'debug-panel';
-        p.style.cssText = 'display:none;position:fixed;top:10px;right:10px;width:300px;background:#1a1a2e;color:#eee;padding:15px;border-radius:8px;z-index:10000;font-family:monospace;font-size:12px;';
-        p.innerHTML = '<h3>Debug</h3>' +
+        p.style.cssText = 'display:none;position:fixed;top:10px;right:10px;width:350px;background:#1a1a2e;color:#eee;padding:15px;border-radius:8px;z-index:10000;font-family:monospace;font-size:12px;max-height:80vh;overflow-y:auto;';
+        p.innerHTML = '<h3>Debug Panel</h3>' +
+            '<div><b>Resources</b></div>' +
             '<div><button id="dbg-wood">+10 Wood</button> <button id="dbg-gold">+100 Gold</button> <button id="dbg-iron">+10 Iron</button></div>' +
-            '<div><button id="dbg-heal">Heal</button> <button id="dbg-lvl">+1 Lvl</button> <button id="dbg-soul">+50 Soul</button></div>' +
-            '<div><select id="debug-map-select"></select> <button id="dbg-unlock">Unlock</button></div>' +
-            '<div><button id="dbg-save">Save</button> <button id="dbg-load">Load</button></div>' +
+            '<div><button id="dbg-heal">Full Heal</button> <button id="dbg-lvl">+1 Lvl</button> <button id="dbg-soul">+50 Soul</button></div>' +
+            '<div><b>Map</b></div>' +
+            '<div><select id="debug-map-select"></select> <button id="dbg-unlock">Unlock All</button></div>' +
+            '<div><b>Tools</b></div>' +
+            '<div><button id="dbg-log">Game Log</button> <button id="dbg-buffs">Buffs</button> <button id="dbg-world">World State</button></div>' +
+            '<div><button id="dbg-save">Save</button> <button id="dbg-load">Load</button> <button id="dbg-sort">Sort Inv</button></div>' +
             '<div id="debug-status" style="margin-top:10px;background:#16213e;padding:8px;border-radius:4px;"></div>';
         document.body.appendChild(p);
         this.panel = p;
@@ -35,8 +39,12 @@ var DebugPanel = {
         document.getElementById('dbg-lvl').onclick = function() { self.addLevel(1); };
         document.getElementById('dbg-soul').onclick = function() { self.addSoul(50); };
         document.getElementById('dbg-unlock').onclick = function() { self.unlockAllMaps(); };
-        document.getElementById('dbg-save').onclick = function() { self.saveGame(); };
-        document.getElementById('dbg-load').onclick = function() { self.loadGame(); };
+        document.getElementById('dbg-log').onclick = function() { if (typeof GameLogger !== 'undefined') GameLogger.showLogPanel(); };
+        document.getElementById('dbg-buffs').onclick = function() { self.showBuffs(); };
+        document.getElementById('dbg-world').onclick = function() { self.showWorldState(); };
+        document.getElementById('dbg-save').onclick = function() { storage.save(); };
+        document.getElementById('dbg-load').onclick = function() { storage.load(); updateUI(); };
+        document.getElementById('dbg-sort').onclick = function() { if (typeof QoLSystem !== 'undefined') QoLSystem.sortInventory(); };
         document.getElementById('debug-map-select').onchange = function() { self.teleport(this.value); };
     },
     toggle: function() { this.visible = !this.visible; this.panel.style.display = this.visible ? 'block' : 'none'; },
@@ -46,10 +54,18 @@ var DebugPanel = {
     addSoul: function(n) { player.soul+=n; updateUI(); },
     teleport: function(id) { if(id) mapSystem.switchMap(id); },
     unlockAllMaps: function() { Object.keys(MAPS).forEach(function(id){if(player.unlockedMaps.indexOf(id)<0) player.unlockedMaps.push(id);}); mapSystem.updateMapButtons(); },
-    saveGame: function() { storage.save(); },
-    loadGame: function() { storage.load(); updateUI(); },
-    testBattle: function(id) { battleSystem.startBattle(id); },
-    winBattle: function() { if(battleSystem.inBattle){battleSystem.monsterHealth=0;battleSystem.victory();} },
+    showBuffs: function() {
+        if (typeof BuffSystem === 'undefined') { showMessage('BuffSystem not loaded', 'error'); return; }
+        var icons = BuffSystem.getIcons('player');
+        var count = BuffSystem.count('player');
+        showMessage('Player Buffs (' + count + '): ' + (icons || 'None'), 'info');
+    },
+    showWorldState: function() {
+        if (typeof WorldState === 'undefined') { showMessage('WorldState not loaded', 'error'); return; }
+        var s = WorldState.state;
+        var msg = 'Town Lv:' + s.townLevel + ' | Boss Kills:' + Object.keys(s.bossKills).length + ' | NPC Relations:' + Object.keys(s.npcRelations).length;
+        showMessage(msg, 'info');
+    },
     updateMapSelect: function() {
         var s = document.getElementById('debug-map-select');
         if(!s) return;
@@ -59,6 +75,6 @@ var DebugPanel = {
     updateStatus: function() {
         var el = document.getElementById('debug-status');
         if(!el||!this.visible) return;
-        el.textContent = 'HP:'+Math.round(player.health)+' STA:'+Math.round(player.stamina)+' ATK:'+player.attack+' LVL:'+(player.level||1);
+        el.textContent = 'HP:'+Math.round(player.health)+' STA:'+Math.round(player.stamina)+' LVL:'+(player.level||1)+' Map:'+(MAPS[mapSystem.currentMap]||{}).name;
     }
 };
