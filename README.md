@@ -123,3 +123,181 @@
 
 ---
 
+## 科技研究
+
+| 科技 | 效果 | 材料 |
+|------|------|------|
+| 马车运输 | 背包+5 | 研究笔记x3, 木头x5, 铁x2 |
+| 商业网络 | 解锁更多交易 | 研究笔记x5, 金币x20 |
+| 世界地图 | 解锁终焉地图 | 研究笔记x10, 古代遗物x3, 光尘x5 |
+| 高级工艺 | 解锁高级配方 | 研究笔记x5, 科技蓝图x2, 铁x5 |
+| 魔法研究 | 解锁魔法装备 | 研究笔记x5, 魔法卷轴x2, 光尘x3 |
+| 恒温技术 | 解锁恒温装备 | 研究笔记x3, 恒温布x2, 温暖石x2 |
+| 采矿技术 | 矿洞产出+50% | 研究笔记x3, 铁x5, 零件x3 |
+| 炼金大师 | 解锁高级药剂 | 研究笔记x5, 草药x10, 水晶x3 |
+
+---
+
+## 体温系统
+
+### 体温影响
+
+| 体温范围 | 命中率 | 制作成功率 |
+|----------|--------|------------|
+| 36-38度 (最佳) | +5% | +10% |
+| 34-36度 (轻度低温) | -5% | -5% |
+| 38-40度 (轻度高温) | -3% | -5% |
+| 32-34度 (中度低温) | -15% | -20% |
+| 40-42度 (中度高温) | -10% | -15% |
+| <32度 (重度低温) | -30% | -50% |
+| >42度 (重度高温) | -25% | -40% |
+
+### 天气影响
+
+| 天气 | 体温影响 |
+|------|----------|
+| 晴天 | +1度 |
+| 下雨 | -2度 |
+| 下雪 | -4度 |
+| 暴风雪 | -7度 |
+| 热浪 | +5度 |
+
+---
+
+## 开发指南
+
+### 添加新物品
+
+在 js/item.js 的 ITEMS 对象中添加:
+
+```javascript
+newItem: { name: '新物品', type: 'resource', description: '描述', stackable: true, maxStack: 99, icon: 'X' }
+```
+
+### 添加新配方
+
+在 js/craft.js 的 CRAFTING_RECIPES 对象中添加:
+
+```javascript
+newRecipe: { result: 'newItem', name: '新配方', ingredients: { wood: 3, iron: 1 } }
+```
+
+### 添加新怪物
+
+在 js/map-data.js 的 MONSTERS 对象中添加:
+
+```javascript
+newMonster: { name: '新怪物', health: 100, attack: 20, defense: 10, drops: ['item1'], dropChance: 0.5, abilities: 'burn', ai: 'normal' }
+```
+
+### 添加新Buff
+
+在 data/buffs.js 的 BUFF_DEFS 对象中添加:
+
+```javascript
+newBuff: { name: 'New Buff', icon: 'X', type: 'buff', maxStacks: 3, onTick: function(target, stacks, ctx) { } }
+```
+
+### 运行数据校验
+
+```javascript
+DataValidator.printReport();
+```
+
+### 运行平衡模拟
+
+```javascript
+BalanceSimulator.runFullSimulation(1000);
+BalanceSimulator.printReport();
+```
+
+---
+
+## 操作指南
+
+| 按键 | 功能 |
+|------|------|
+| 1-9 | 执行对应行动 |
+| M | 地图列表 |
+| B | 建造菜单 |
+| I | 角色状态 |
+| E | 资源效率 |
+| Q | 任务列表 |
+| W | 天气信息 |
+| R | 成就列表 |
+| ESC | 关闭弹窗 |
+| Ctrl+D | 调试面板 |
+
+---
+
+## 项目结构
+
+```
+xbvg-mimo/
+├── index.html          # 主页面
+├── manifest.json       # PWA清单
+├── sw.js               # Service Worker
+├── engine/             # 引擎层 (11个文件)
+│   ├── effect.js       # 统一效果处理器
+│   ├── action.js       # 统一行动执行器
+│   ├── buff.js         # Buff/Debuff系统
+│   ├── trigger.js      # 战斗触发器
+│   ├── ai.js           # 怪物AI系统
+│   ├── state.js        # 游戏状态机
+│   ├── eventbus.js     # 事件总线
+│   ├── validator.js    # 数据校验
+│   ├── simulator.js    # 平衡模拟器
+│   ├── dataloader.js   # 数据加载器
+│   └── debug.js        # 调试面板
+├── data/               # 数据层 (3个文件)
+│   ├── skills.js       # 技能数据
+│   ├── events.js       # 事件数据
+│   └── buffs.js        # Buff数据
+├── js/                 # 逻辑层 (18个文件)
+│   ├── battle.js       # 战斗系统
+│   ├── craft.js        # 制作系统
+│   ├── map.js          # 地图系统
+│   ├── npc.js          # NPC系统
+│   └── ...
+└── css/                # 样式文件
+```
+
+---
+
+## 代码统计
+
+| 层 | 文件数 | 行数 |
+|----|--------|------|
+| 引擎层 | 11 | 1,435 |
+| 数据层 | 3 | 381 |
+| 逻辑层 | 18 | 9,557 |
+| 总计 | 32 | 11,373 |
+
+---
+
+## 版本历史
+
+### v7.0 - 架构版
+- 引擎层与逻辑层分离
+- 统一Buff/Debuff系统
+- 战斗触发器系统
+- 怪物AI配置化
+- 自动数据校验
+- 平衡模拟器
+
+### v6.0 - 内容扩展版
+- 技能系统
+- 状态效果系统
+- 科技研究系统
+- 体温管理系统
+
+### v5.1 - 工程化改进版
+- XSS防护
+- 存档系统重构
+- PWA支持
+
+---
+
+## 许可证
+
+MIT License
