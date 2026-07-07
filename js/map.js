@@ -116,6 +116,30 @@ const mapSystem = {
     },
 
     // 更新地图显示
+        // 获取动态场景描述
+    getDynamicDescription: function() {
+        var mapId = this.currentMap;
+        var scenes = (typeof SceneDescriptions !== 'undefined') ? SceneDescriptions[mapId] : null;
+        if (!scenes) return null;
+
+        var weather = 'clear';
+        if (typeof weatherSystem !== 'undefined' && weatherSystem.currentWeather) {
+            weather = weatherSystem.currentWeather;
+        }
+
+        var hour = player.gameTime.hour;
+        var timeOfDay = (hour >= 6 && hour < 18) ? 'day' : 'night';
+
+        // 构建key: weather_timeOfDay
+        var key = weather + '_' + timeOfDay;
+        if (scenes[key]) return scenes[key];
+
+        // 降级到天气描述
+        if (scenes[weather]) return scenes[weather];
+
+        return scenes.default;
+    },
+
     updateMapDisplay: function() {
         const map = MAPS[this.currentMap];
         if (!map) return;
@@ -134,7 +158,7 @@ const mapSystem = {
 
         // 更新文字描述
         const gameText = document.getElementById('game-text');
-        let desc = map.description;
+        var desc = this.getDynamicDescription() || map.description;
         if (this.currentMap === 'dungeon') {
             const floor = player.dungeonFloor;
             const config = map.dungeonConfig;

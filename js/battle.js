@@ -299,6 +299,7 @@ const battleSystem = {
     victory: function() {
         if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('victory');
         this.addBattleLog(`击败了${this.currentMonster.name}！`, 'system-message');
+        if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordKill(this.currentMonster.id);
 
         // 计算掉落
         const drops = this.calculateDrops();

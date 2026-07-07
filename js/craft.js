@@ -183,6 +183,7 @@ const craftSystem = {
         if (addItemToInventory(recipe.result, 1)) {
             if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('craft');
             showMessage(`制作了${recipe.name}`, 'success');
+            if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordCraft(recipe.result);
             updateUI();
             return true;
         }
@@ -221,6 +222,7 @@ const craftSystem = {
         if (addItemToInventory(recipe.result, 1)) {
             if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('craft');
             showMessage(`制作了${recipe.name}`, 'success');
+            if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordCraft(recipe.result);
             updateUI();
             return true;
         }
