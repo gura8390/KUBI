@@ -1,0 +1,26 @@
+{
+    "name": "超苦逼冒险者",
+    "short_name": "苦逼冒险者",
+    "description": "一款复古文字风格的 HTML5 生存冒险游戏",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f5f0e1",
+    "theme_color": "#8b7355",
+    "orientation": "any",
+    "lang": "zh-CN",
+    "categories": ["games", "entertainment"],
+    "icons": [
+        {
+            "src": "assets/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

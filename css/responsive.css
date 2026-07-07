@@ -1,0 +1,288 @@
+/* ============================================
+   响应式样式 · 杂志风格
+   ============================================ */
+
+/* --- 平板 --- */
+@media (max-width: 1024px) {
+    .game-container {
+        flex-direction: column;
+    }
+
+    .stats-panel {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .stats-section {
+        flex: 1;
+        min-width: 200px;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .game-main {
+        min-height: 400px;
+    }
+
+    .battle-info {
+        flex-direction: column;
+    }
+
+    .battle-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* --- 手机 --- */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        padding: 10px 16px;
+    }
+
+    .game-info {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .stats-panel {
+        flex-direction: column;
+    }
+
+    .stats-section {
+        min-width: 100%;
+    }
+
+    .action-buttons {
+        justify-content: center;
+    }
+
+    .action-btn {
+        flex: 1;
+        min-width: 70px;
+        max-width: 120px;
+        font-size: 12px;
+        padding: 7px 10px;
+    }
+
+    .inventory-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .map-buttons {
+        justify-content: center;
+    }
+
+    .map-btn {
+        flex: 1;
+        min-width: 56px;
+        max-width: 90px;
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .function-buttons {
+        justify-content: center;
+    }
+
+    .func-btn {
+        flex: 1;
+        min-width: 56px;
+        max-width: 90px;
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .battle-content {
+        width: 96%;
+    }
+
+    .battle-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .battle-btn {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 96%;
+        padding: 16px 20px;
+    }
+}
+
+/* --- 小屏手机 --- */
+@media (max-width: 480px) {
+    .game-title {
+        font-size: 16px;
+    }
+
+    .game-info span {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .stats-section h3 {
+        font-size: 11px;
+    }
+
+    .stat-label {
+        width: 28px;
+        font-size: 9px;
+    }
+
+    .stat-value {
+        width: 26px;
+        font-size: 10px;
+    }
+
+    .map-header h2 {
+        font-size: 18px;
+    }
+
+    .game-text {
+        min-height: 120px;
+        max-height: 180px;
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .action-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .inventory-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .inventory-slot {
+        min-height: 50px;
+        padding: 6px 2px;
+    }
+
+    .item-icon {
+        font-size: 16px;
+    }
+
+    .item-name {
+        font-size: 8px;
+    }
+
+    .battle-header h3 {
+        font-size: 16px;
+    }
+
+    .battle-enemy h4, .battle-player h4 {
+        font-size: 12px;
+    }
+
+    .battle-log p {
+        font-size: 11px;
+    }
+
+    .battle-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* --- 超小屏 --- */
+@media (max-width: 320px) {
+    .game-title {
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+
+    .game-info { gap: 4px; }
+
+    .game-info span {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+
+    .action-buttons { gap: 4px; }
+
+    .action-btn {
+        padding: 5px 7px;
+        font-size: 10px;
+    }
+
+    .map-buttons { gap: 3px; }
+
+    .map-btn {
+        padding: 4px 6px;
+        font-size: 9px;
+    }
+
+    .function-buttons { gap: 3px; }
+
+    .func-btn {
+        padding: 4px 6px;
+        font-size: 9px;
+    }
+}
+
+/* --- 横屏 --- */
+@media (max-height: 500px) and (orientation: landscape) {
+    .game-container {
+        flex-direction: row;
+        height: calc(100vh - 80px);
+    }
+
+    .stats-panel {
+        width: 200px;
+        min-width: 200px;
+        overflow-y: auto;
+    }
+
+    .game-main {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .game-text {
+        min-height: 80px;
+        max-height: 120px;
+    }
+
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: 6px 16px;
+    }
+}
+
+/* --- 高 DPI --- */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .bar {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* --- 无障碍：减少动画 --- */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --- 高对比度 --- */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #555;
+        --text: #fff;
+        --text-dim: #aaa;
+    }
+}

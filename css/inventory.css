@@ -1,0 +1,164 @@
+/* ============================================
+   背包样式 · 杂志风格
+   ============================================ */
+
+/* --- 物品详情提示框 --- */
+.item-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
+    padding: 10px 14px;
+    min-width: 160px;
+    z-index: 100;
+    display: none;
+}
+
+.inventory-slot:hover .item-tooltip {
+    display: block;
+}
+
+.tooltip-header {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tooltip-description {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.tooltip-effects {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--success);
+}
+
+.tooltip-effects div {
+    margin-bottom: 2px;
+}
+
+/* --- 背包排序和筛选 --- */
+.inventory-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.sort-btn, .filter-btn {
+    background-color: var(--surface-3);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    transition: all var(--transition);
+    letter-spacing: 0.5px;
+}
+
+.sort-btn:hover, .filter-btn:hover {
+    color: var(--text);
+    border-color: var(--text-dim);
+}
+
+.filter-select {
+    background-color: var(--surface-3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+}
+
+/* --- 背包容量 --- */
+.inventory-capacity {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+
+.capacity-bar {
+    flex: 1;
+    height: 4px;
+    background-color: var(--surface-3);
+    overflow: hidden;
+    margin: 0 10px;
+}
+
+.capacity-fill {
+    height: 100%;
+    background-color: var(--accent);
+    transition: width 0.3s ease;
+}
+
+.capacity-text {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+}
+
+/* --- 拖拽状态 --- */
+.inventory-slot.dragging {
+    opacity: 0.4;
+    border-color: var(--accent);
+}
+
+.inventory-slot.drag-over {
+    background-color: var(--accent-glow);
+    border-color: var(--accent);
+}
+
+.inventory-slot.selected {
+    border-color: var(--accent);
+    background-color: var(--accent-glow);
+}
+
+/* --- 物品获取动画 --- */
+@keyframes itemGet {
+    0%   { transform: scale(0.6); opacity: 0; }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.inventory-slot.new-item {
+    animation: itemGet 0.25s ease;
+}
+
+/* --- 物品丢弃动画 --- */
+@keyframes itemDrop {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.6); opacity: 0; }
+}
+
+.inventory-slot.dropping {
+    animation: itemDrop 0.25s ease forwards;
+}
+
+/* --- 响应式 --- */
+@media (max-width: 768px) {
+    .inventory-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .inventory-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

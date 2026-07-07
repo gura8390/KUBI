@@ -1,0 +1,453 @@
+/* ============================================
+   战斗样式 · 杂志风格
+   ============================================ */
+
+/* --- 战斗模态框 --- */
+.battle-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(58,53,48,0.82);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(8px);
+}
+
+.battle-content {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.battle-header {
+    background-color: var(--surface-2);
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.battle-header h3 {
+    font-family: var(--font-serif);
+    color: var(--danger);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* --- 战斗信息区域 --- */
+.battle-info {
+    display: flex;
+    padding: 12px;
+    gap: 12px;
+}
+
+.battle-enemy, .battle-player {
+    flex: 1;
+    background-color: var(--surface-2);
+    padding: 14px;
+    border: 1px solid var(--border);
+}
+
+.battle-enemy h4, .battle-player h4 {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.enemy-stats, .player-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.enemy-health-bar {
+    background-color: var(--danger);
+}
+
+/* --- 战斗日志 --- */
+.battle-log {
+    background-color: var(--surface-2);
+    margin: 0 12px;
+    padding: 14px;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+}
+
+.battle-log p {
+    margin-bottom: 6px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.battle-log p.player-action  { color: var(--info); }
+.battle-log p.enemy-action   { color: var(--danger); }
+.battle-log p.system-message  { color: var(--warning); }
+.battle-log p.loot-message    { color: var(--success); }
+.battle-log p.critical-hit    { color: var(--accent); font-weight: 600; }
+.battle-log p.miss            { color: var(--text-dim); font-style: italic; }
+
+/* --- 战斗操作按钮 --- */
+.battle-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.battle-btn {
+    background-color: var(--surface-3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 24px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all var(--transition);
+    min-width: 80px;
+    letter-spacing: 0.5px;
+}
+
+.battle-btn:hover {
+    background-color: var(--border-light);
+    border-color: var(--text-dim);
+    color: var(--text-bright);
+}
+
+.battle-btn:active {
+    background-color: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.battle-btn.attack {
+    background-color: var(--danger-dim);
+    border-color: var(--danger);
+}
+
+.battle-btn.attack:hover {
+    background-color: var(--danger);
+    color: #fff;
+}
+
+.battle-btn.defend {
+    background-color: var(--info-dim);
+    border-color: var(--info);
+}
+
+.battle-btn.defend:hover {
+    background-color: var(--info);
+    color: #fff;
+}
+
+.battle-btn.flee {
+    background-color: transparent;
+    border-color: var(--border-light);
+    color: var(--text-dim);
+}
+
+.battle-btn.flee:hover {
+    background-color: var(--surface-3);
+    color: var(--text);
+}
+
+.battle-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- 战斗动画 --- */
+@keyframes attackAnimation {
+    0%   { transform: translateX(0); }
+    50%  { transform: translateX(16px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes damageAnimation {
+    0%   { transform: translateX(0); opacity: 1; }
+    25%  { transform: translateX(-8px); }
+    50%  { transform: translateX(8px); }
+    75%  { transform: translateX(-4px); }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes shakeAnimation {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+    20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.battle-enemy.attack-animation { animation: attackAnimation 0.3s ease; }
+.battle-player.damage-animation { animation: damageAnimation 0.3s ease; }
+.battle-enemy.damage-animation  { animation: damageAnimation 0.3s ease; }
+.battle-content.shake-animation { animation: shakeAnimation 0.4s ease; }
+
+/* --- 伤害数字 --- */
+.damage-number {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--danger);
+    animation: damageFloat 0.8s ease forwards;
+    pointer-events: none;
+}
+
+.damage-number.critical { color: var(--accent); font-size: 26px; }
+.damage-number.heal     { color: var(--success); }
+.damage-number.miss     { color: var(--text-dim); font-size: 16px; }
+
+@keyframes damageFloat {
+    0%   { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-40px); opacity: 0; }
+}
+
+/* --- 战斗结果 --- */
+.battle-result {
+    text-align: center;
+    padding: 20px;
+}
+
+.battle-result h3 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+}
+
+.battle-result.victory h3 { color: var(--success); }
+.battle-result.defeat h3  { color: var(--danger); }
+
+.battle-result.loot {
+    background-color: var(--surface-2);
+    padding: 14px;
+    border: 1px solid var(--border);
+    margin: 14px 0;
+}
+
+.battle-result.loot h4 {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.battle-result.loot ul {
+    list-style: none;
+    text-align: left;
+}
+
+.battle-result.loot li {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--success);
+}
+
+.battle-result.loot li:last-child {
+    border-bottom: none;
+}
+
+.battle-result.actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+/* --- 战斗背包 --- */
+.battle-inventory h4 {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.battle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.battle-item.disabled {
+    opacity: 0.4;
+}
+
+.battle-item .item-icon {
+    font-size: 16px;
+}
+
+.battle-item .item-name {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+}
+
+.battle-item .item-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.use-btn {
+    background-color: var(--success-dim);
+    color: var(--text);
+    border: 1px solid var(--success);
+    padding: 3px 10px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    transition: all var(--transition);
+}
+
+.use-btn:hover {
+    background-color: var(--success);
+    color: #fff;
+}
+
+/* --- 战斗准备 / 状态效果 --- */
+.battle-preparation { padding: 16px; }
+.battle-preparation h3 {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.enemy-preview {
+    background-color: var(--surface-2);
+    padding: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.enemy-preview h4 {
+    font-family: var(--font-serif);
+    color: var(--danger);
+    margin-bottom: 8px;
+}
+
+.enemy-preview .enemy-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.enemy-preview .enemy-info span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.preparation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.status-effects {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.status-effect {
+    background-color: var(--surface-3);
+    padding: 2px 8px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+}
+
+.status-effect.poison { border-color: var(--success); color: var(--success); }
+.status-effect.burn   { border-color: var(--danger);  color: var(--danger); }
+.status-effect.freeze { border-color: var(--info);    color: var(--info); }
+.status-effect.stun   { border-color: var(--warning); color: var(--warning); }
+
+/* --- 战斗奖励 --- */
+.battle-rewards {
+    background-color: var(--surface-2);
+    padding: 12px;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+}
+
+.battle-rewards h4 {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.reward-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.reward-item:last-child { border-bottom: none; }
+
+.reward-name {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--success);
+}
+
+.reward-amount {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* === 技能系统样式 === */
+.battle-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.skill-btn {
+    padding: 6px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.skill-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.skill-btn.on-cooldown {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.status-effects {
+    font-size: 14px;
+    margin-left: 8px;
+}

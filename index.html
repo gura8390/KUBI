@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#8b7355">
+    <meta name="description" content="一款复古文字风格的 HTML5 生存冒险游戏，灵感来源于经典文字 MUD 与生存沙盒玩法。">
+    <title>超苦逼冒险者</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- 样式 -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/inventory.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- 顶部状态栏 -->
+    <header class="top-bar">
+        <div class="game-title">《超苦逼冒险者》</div>
+        <div class="game-info">
+            <span id="day-display">第1天</span>
+            <span id="season-display">春季</span>
+            <span id="time-display">06:00</span>
+            <span id="weather-display" onclick="weatherSystem.showWeatherInfo()">☀️ 晴天</span>
+        </div>
+    </header>
+
+    <!-- 主游戏区域 -->
+    <main class="game-container">
+        <!-- 左侧属性面板 -->
+        <aside class="stats-panel">
+            <!-- 基础属性 -->
+            <div class="stats-section">
+                <h3>基础属性</h3>
+                <div class="stat-bar">
+                    <span class="stat-label">生命</span>
+                    <div class="bar-container">
+                        <div class="bar health-bar" id="health-bar"></div>
+                    </div>
+                    <span class="stat-value" id="health-value">100</span>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">满腹</span>
+                    <div class="bar-container">
+                        <div class="bar hunger-bar" id="hunger-bar"></div>
+                    </div>
+                    <span class="stat-value" id="hunger-value">100</span>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">体力</span>
+                    <div class="bar-container">
+                        <div class="bar stamina-bar" id="stamina-bar"></div>
+                    </div>
+                    <span class="stat-value" id="stamina-value">100</span>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">水分</span>
+                    <div class="bar-container">
+                        <div class="bar thirst-bar" id="thirst-bar"></div>
+                    </div>
+                    <span class="stat-value" id="thirst-value">100</span>
+                </div>
+                <div class="stat-bar">
+                    <span class="stat-label">精神</span>
+                    <div class="bar-container">
+                        <div class="bar sanity-bar" id="sanity-bar"></div>
+                    </div>
+                    <span class="stat-value" id="sanity-value">100</span>
+                </div>
+                <div class="stat-temperature">
+                    <span class="stat-label">体温</span>
+                    <span class="stat-value" id="temperature-value">37°C</span>
+                </div>
+            </div>
+
+            <!-- 装备栏 -->
+            <div class="stats-section">
+                <h3>装备栏</h3>
+                <div class="equipment-slots">
+                    <div class="equipment-slot" id="weapon-slot">
+                        <span class="slot-label">武器</span>
+                        <div class="slot-content">木棍</div>
+                    </div>
+                    <div class="equipment-slot" id="armor-slot">
+                        <span class="slot-label">防具</span>
+                        <div class="slot-content">无</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 战斗属性 -->
+            <div class="stats-section">
+                <h3>战斗属性</h3>
+                <div class="combat-stats">
+                    <div class="combat-stat">
+                        <span class="stat-label">攻击力</span>
+                        <span class="stat-value" id="attack-value">10</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="stat-label">防御力</span>
+                        <span class="stat-value" id="defense-value">0</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="stat-label">命中率</span>
+                        <span class="stat-value" id="hitrate-value">80%</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="stat-label">魂</span>
+                        <span class="stat-value" id="soul-value">0</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="stat-label">等级</span>
+                        <span class="stat-value" id="level-value">1</span>
+                    </div>
+                    <div class="combat-stat">
+                        <span class="stat-label">经验</span>
+                        <span class="stat-value" id="xp-value">0/50</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧游戏主区域 -->
+        <section class="game-main">
+            <!-- 地图信息 -->
+            <div class="map-header">
+                <h2 id="current-map-name">[幽暗森林]</h2>
+            </div>
+
+            <!-- 上半部分：文字+行动 -->
+            <div class="game-top">
+                <!-- 文字描述区域 -->
+                <div class="game-text" id="game-text">
+                    <p>你来到了幽暗的森林，周围树木茂密。</p>
+                    <p>阳光透过树叶洒下斑驳的光影。</p>
+                </div>
+
+                <!-- 行动按钮区域 -->
+                <div class="action-buttons" id="action-buttons">
+                    <button class="action-btn" onclick="game.performAction('chop')">砍树</button>
+                    <button class="action-btn" onclick="game.performAction('gather')">采集浆果</button>
+                    <button class="action-btn" onclick="game.performAction('hunt')">狩猎</button>
+                    <button class="action-btn" onclick="game.performAction('scavenge')">拾荒</button>
+                    <button class="action-btn" onclick="game.goHome()">回家</button>
+                    <button class="action-btn" onclick="game.showMapList()">查看地图</button>
+                </div>
+            </div>
+
+            <!-- 下半部分：背包常驻显示 -->
+            <div class="inventory-panel" id="inventory-panel">
+                <h3>背包 (<span id="inventory-count">0</span>/<span id="inventory-max">10</span>)</h3>
+                <div class="inventory-grid" id="inventory-grid">
+                    <!-- 物品槽位将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 操作日志 -->
+            <div class="game-log" id="game-log">
+                <!-- 日志条目将通过JavaScript动态添加 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部功能栏 -->
+    <footer class="bottom-bar">
+        <!-- 地图切换按钮 -->
+        <div class="map-buttons" id="map-buttons">
+            <button class="map-btn active" onclick="game.switchMap('darkForest')">幽暗森林</button>
+            <button class="map-btn" onclick="game.switchMap('town')">小镇</button>
+            <button class="map-btn" onclick="game.switchMap('creek')">溪流</button>
+            <button class="map-btn" onclick="game.switchMap('deathValley')">死亡山谷</button>
+            <button class="map-btn" onclick="game.switchMap('acidSwamp')">酸沼泽</button>
+            <button class="map-btn" onclick="game.switchMap('ancientRuin')">古老废墟</button>
+            <button class="map-btn" onclick="game.switchMap('mine')">矿洞</button>
+            <button class="map-btn" onclick="game.switchMap('banditDen')">贼窝</button>
+            <button class="map-btn" onclick="game.switchMap('spiderCave')">蜘蛛洞穴</button>
+            <button class="map-btn" onclick="game.switchMap('volcano')">火山地带</button>
+            <button class="map-btn" onclick="game.switchMap('oceanTemple')">海底神殿</button>
+            <button class="map-btn" onclick="game.switchMap('skyIsland')">天空岛屿</button>
+            <button class="map-btn" onclick="game.switchMap('dungeon')">地牢</button>
+        </div>
+
+        <!-- 功能按钮 -->
+        <div class="function-buttons">
+            <button class="func-btn" onclick="game.showSystemMenu()">系统</button>
+            <button class="func-btn" onclick="game.saveGame()">存档</button>
+            <button class="func-btn" onclick="game.loadGame()">读档</button>
+        </div>
+    </footer>
+
+    <!-- 模态框容器 -->
+    <div class="modal-container" id="modal-container" style="display: none;">
+        <div class="modal-content" id="modal-content">
+            <!-- 动态内容将通过JavaScript填充 -->
+        </div>
+    </div>
+
+    <!-- 战斗模态框 -->
+    <div class="battle-modal" id="battle-modal" style="display: none;">
+        <div class="battle-content">
+            <div class="battle-header">
+                <h3 id="battle-title">战斗</h3>
+            </div>
+            <div class="battle-info">
+                <div class="battle-enemy">
+                    <h4 id="enemy-name">怪物名称</h4>
+                    <div class="enemy-stats">
+                        <div class="stat-bar">
+                            <span class="stat-label">生命</span>
+                            <div class="bar-container">
+                                <div class="bar enemy-health-bar" id="enemy-health-bar"></div>
+                            </div>
+                            <span class="stat-value" id="enemy-health-value">100</span>
+                        <span id="monster-status-effects" class="status-effects"></span>
+                        </div>
+                        <div class="combat-stat">
+                            <span class="stat-label">攻击力</span>
+                            <span class="stat-value" id="enemy-attack-value">10</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="battle-player">
+                    <h4>你的状态</h4>
+                    <div class="player-stats">
+                        <div class="stat-bar">
+                            <span class="stat-label">生命</span>
+                            <div class="bar-container">
+                                <div class="bar health-bar" id="player-health-bar"></div>
+                            </div>
+                            <span class="stat-value" id="player-health-value">100</span>
+                            <span id="player-status-effects" class="status-effects"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="battle-log" id="battle-log">
+                <!-- 战斗日志将通过JavaScript动态添加 -->
+            </div>
+            <div class="battle-skills" id="battle-skills">
+                <button class="skill-btn" onclick="battleSystem.useSkill("heavyStrike")" title="重击: 2倍伤害,3回合CD">💥重击</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("doubleSlash")" title="连斩: 攻击2次,5回合CD" style="display:none">⚔️连斩</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("fatalBlow")" title="致命一击: 3倍伤害,8回合CD" style="display:none">☠️致命</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("ironWall")" title="铁壁: 免疫伤害,4回合CD">🛡️铁壁</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("counterAttack\())" title="反击: 防御后反击,6回合CD" style="display:none">🔄反击</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("warCry")" title="战吼: 攻击+30%,10回合CD" style="display:none">📢战吼</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("fireball")" title="火球术: 魔法伤害+灼烧,5回合CD" style="display:none">🔥火球</button>
+                <button class="skill-btn" onclick="battleSystem.useSkill("iceBlast")" title="冰冻术: 魔法伤害+冰冻,8回合CD" style="display:none">❄️冰冻</button>
+            </div>
+            <div class="battle-actions">
+                <button class="battle-btn" onclick="battleSystem.attack()">攻击</button>
+                <button class="battle-btn" onclick="battleSystem.defend()">防御</button>
+                <button class="battle-btn" onclick="battleSystem.flee()">逃跑</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载JavaScript文件 -->
+    <!-- 引擎核心 -->
+    <script src="engine/eventbus.js"></script>
+    <script src="engine/effect.js"></script>
+    <script src="engine/action.js"></script>
+    <script src="engine/state.js"></script>
+    <script src="engine/dataloader.js"></script>
+    <script src="engine/debug.js"></script>
+    <script src="engine/buff.js"></script>
+    <script src="engine/trigger.js"></script>
+    <script src="engine/ai.js"></script>
+    <script src="engine/validator.js"></script>
+    <script src="engine/simulator.js"></script>
+
+    <!-- 数据配置 -->
+    <script src="data/skills.js"></script>
+    <script src="data/events.js"></script>
+    <script src="data/buffs.js"></script>
+
+    <!-- 游戏逻辑 -->
+    <script src="js/namespace.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/time.js"></script>
+    <script src="js/item.js"></script>
+    <script src="js/map-data.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/craft.js"></script>
+    <script src="js/npc.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/quests.js"></script>
+    <script src="js/weather.js"></script>
+    <script src="js/skills.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/game.js"></script>
+
+    <!-- Service Worker 注册 (仅在安全上下文中) -->
+    <script>
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(reg) { console.log('[SW] 注册成功:', reg.scope); })
+                    .catch(function(err) { console.warn('[SW] 注册失败:', err); });
+            });
+        }
+    </script>
+</body>
+</html>
