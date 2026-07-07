@@ -1,14 +1,14 @@
-// 配方数据已迁移到 data/recipes.js
-// 本文件只保留制作系统逻辑
-
 // 制作系统文件
 
 // 烹饪配方
+// COOKING_RECIPES 已迁移到 data/recipes.js
 // 制作配方
+// CRAFTING_RECIPES 已迁移到 data/recipes.js
 // 制作系统
 const craftSystem = {
     // 初始化制作系统
     init: function() {
+        console.log('制作系统初始化完成');
     },
 
     // 烹饪
@@ -60,7 +60,8 @@ const craftSystem = {
         if (addItemToInventory(recipe.result, 1)) {
             if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('craft');
             showMessage(`制作了${recipe.name}`, 'success');
-            if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordCraft(recipe.result);
+            if (typeof EventBus !== "undefined") EventBus.emit("item:crafted", { item: recipe.result });
+            if (typeof GameLogger !== "undefined") GameLogger.craft("制作了" + recipe.name);
             updateUI();
             return true;
         }
@@ -99,7 +100,6 @@ const craftSystem = {
         if (addItemToInventory(recipe.result, 1)) {
             if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('craft');
             showMessage(`制作了${recipe.name}`, 'success');
-            if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordCraft(recipe.result);
             updateUI();
             return true;
         }

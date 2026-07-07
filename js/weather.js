@@ -270,9 +270,6 @@ const weatherSystem = {
     },
 
     // 获取当前天气
-    getCurrentWeather: function() {
-        return WEATHER_TYPES[this.currentWeather];
-    },
 
     // 获取当前天气ID
 

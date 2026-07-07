@@ -126,12 +126,6 @@ var DataValidator = {
 
     printReport: function() {
         var result = this.validateAll();
-        console.log('=== Data Validation Report ===');
-        console.log('Errors: ' + result.errors.length);
-        result.errors.forEach(function(e) { console.log('  ERROR: ' + e); });
-        console.log('Warnings: ' + result.warnings.length);
-        result.warnings.forEach(function(w) { console.log('  WARN: ' + w); });
-        console.log('Valid: ' + result.valid);
         return result;
     }
 };

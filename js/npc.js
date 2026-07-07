@@ -315,12 +315,6 @@ const npcSystem = {
     // 检查NPC是否在当前地图
 
     // 获取当前地图的NPC列表
-    getNPCsInCurrentMap: function() {
-        const currentMap = mapSystem.currentMap;
-        return Object.entries(NPCS)
-            .filter(([id, npc]) => npc.location === currentMap)
-            .map(([id, npc]) => ({ id, ...npc }));
-    },
 
     // 检查是否有可交易的NPC
 };

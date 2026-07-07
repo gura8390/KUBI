@@ -11,49 +11,27 @@ const battleSystem = {
     isInvincible: false,
     isCountering: false,
     turnCount: 0,
-    statusEffects: { player: [], monster: [] },
     isDefending: false,
     battleLog: [],
 
     // 初始化战斗系统
         init: function() {},
 
+    // 状态效果代理到 BuffSystem
     addStatusEffect: function(target, type, duration, data) {
-        this.statusEffects[target].push({ type: type, duration: duration, data: data });
+        if (typeof BuffSystem !== 'undefined') BuffSystem.add(target, type, duration, 1);
     },
     hasStatusEffect: function(target, type) {
-        return this.statusEffects[target].some(function(e) { return e.type === type; });
+        return typeof BuffSystem !== 'undefined' && BuffSystem.has(target, type);
     },
     getStatusBonus: function(target, type) {
-        return this.statusEffects[target].filter(function(e) { return e.type === type; }).reduce(function(s, e) { return s + (e.data && e.data.attackBonus || 0); }, 0);
+        return typeof BuffSystem !== 'undefined' ? BuffSystem.getStatModifiers(target, 'attack') : 0;
     },
     clearStatusEffects: function(target) {
-        this.statusEffects[target] = [];
+        if (typeof BuffSystem !== 'undefined') BuffSystem.clearAll(target);
     },
     processStatusEffects: function(target) {
-        var effects = this.statusEffects[target];
-        var toRemove = [];
-        var self = this;
-        effects.forEach(function(effect, index) {
-            var name = target === 'monster' ? self.currentMonster.name : 'you';
-            if (effect.type === 'poison') {
-                var dmg = Math.floor((target === 'monster' ? self.monsterMaxHealth : 100) * 0.03);
-                if (target === 'monster') self.monsterHealth -= dmg; else player.health -= dmg;
-                self.addBattleLog(name + ' lost ' + dmg + ' HP from poison', 'enemy-action');
-            } else if (effect.type === 'burn') {
-                var dmg = Math.floor((target === 'monster' ? self.monsterHealth : player.health) * 0.05);
-                if (target === 'monster') self.monsterHealth -= dmg; else player.health -= dmg;
-                self.addBattleLog(name + ' lost ' + dmg + ' HP from burn', 'enemy-action');
-            } else if (effect.type === 'freeze' || effect.type === 'stun') {
-                self.addBattleLog(name + ' cannot act!', 'system-message');
-            } else if (effect.type === 'bleed') {
-                if (target === 'monster') self.monsterHealth -= 5; else player.health -= 5;
-                self.addBattleLog(name + ' lost 5 HP from bleed', 'enemy-action');
-            }
-            effect.duration--;
-            if (effect.duration <= 0) toRemove.push(index);
-        });
-        toRemove.reverse().forEach(function(i) { effects.splice(i, 1); });
+        if (typeof BuffSystem !== 'undefined') BuffSystem.process(target, { monster: this.currentMonster });
     },
     useSkill: function(skillId) {
         if (!this.inBattle || typeof skillSystem === 'undefined') return;
@@ -70,18 +48,18 @@ const battleSystem = {
         if (typeof skillSystem !== 'undefined') skillSystem.reduceCooldowns();
         this.updateHealthBars();
     },
+    // 怪物能力 - 使用 BuffSystem
     processMonsterAbilities: function() {
         var monster = this.currentMonster;
-        if (!monster || !monster.abilities) return;
+        if (!monster || !monster.abilities || typeof BuffSystem === 'undefined') return;
         var abilities = monster.abilities.split(',');
         var self = this;
         abilities.forEach(function(ability) {
             if (Math.random() < 0.3) {
-                if (ability === 'poison') { self.addStatusEffect('player', 'poison', 3, {}); self.addBattleLog(monster.name + ' poisoned you!', 'enemy-action'); }
-                else if (ability === 'burn') { self.addStatusEffect('player', 'burn', 2, {}); self.addBattleLog(monster.name + ' burned you!', 'enemy-action'); }
-                else if (ability === 'freeze') { self.addStatusEffect('player', 'freeze', 1, {}); self.addBattleLog(monster.name + ' froze you!', 'enemy-action'); }
-                else if (ability === 'stun') { self.addStatusEffect('player', 'stun', 1, {}); self.addBattleLog(monster.name + ' stunned you!', 'enemy-action'); }
-                else if (ability === 'bleed') { self.addStatusEffect('player', 'bleed', 3, {}); self.addBattleLog(monster.name + ' made you bleed!', 'enemy-action'); }
+                var buffMap = { poison: 3, burn: 2, freeze: 1, stun: 1, bleed: 3 };
+                var duration = buffMap[ability] || 2;
+                BuffSystem.add('player', ability, duration, 1);
+                self.addBattleLog(monster.name + ' applied ' + ability + '!', 'enemy-action');
             }
         });
     },
@@ -96,6 +74,8 @@ const battleSystem = {
 
         // 设置战斗状态
         this.inBattle = true;
+        if (typeof EventBus !== "undefined") EventBus.emit("battle:start", { monster: this.currentMonster });
+        if (typeof TriggerSystem !== "undefined") TriggerSystem.fire("battle:start", { monster: this.currentMonster });
         this.currentMonster = { id: monsterId, ...monster };
         this.monsterHealth = monster.health;
         this.monsterMaxHealth = monster.health;
@@ -104,7 +84,7 @@ const battleSystem = {
         this.isInvincible = false;
         this.isCountering = false;
         this.turnCount = 0;
-        this.statusEffects = { player: [], monster: [] };
+        if (typeof BuffSystem !== "undefined") { BuffSystem.clearAll("player"); BuffSystem.clearAll("monster"); }
         if (typeof skillSystem !== "undefined") skillSystem.resetCooldowns();
         this.battleLog = [];
 
@@ -220,15 +200,6 @@ const battleSystem = {
     },
 
     // 玩家防御
-    defend: function() {
-        if (!this.inBattle) return;
-
-        this.isDefending = true;
-        if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('wear');
-        this.addBattleLog('你摆出防御姿态', 'player-action');
-        this.monsterTurn();
-        this.endTurn();
-    },
 
     // 玩家逃跑
     flee: function() {
@@ -299,6 +270,8 @@ const battleSystem = {
     victory: function() {
         if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('victory');
         this.addBattleLog(`击败了${this.currentMonster.name}！`, 'system-message');
+        if (typeof WorldState !== "undefined") WorldState.recordBossKill(this.currentMonster.id);
+        if (typeof GameLogger !== "undefined") GameLogger.battle("击败了" + this.currentMonster.name);
         if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordKill(this.currentMonster.id);
 
         // 计算掉落
@@ -425,6 +398,7 @@ const battleSystem = {
         }
 
         this.inBattle = false;
+        if (typeof EventBus !== "undefined") EventBus.emit("battle:end", {});
         this.currentMonster = null;
         this.monsterHealth = 0;
         this.monsterMaxHealth = 0;

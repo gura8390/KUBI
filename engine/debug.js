@@ -6,7 +6,7 @@ var DebugPanel = {
         this.createPanel();
         var self = this;
         document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'd') { e.preventDefault(); self.toggle(); }
+            if (e.key === '~' || e.key === '`') { e.preventDefault(); self.toggle(); }
         });
     },
     createPanel: function() {

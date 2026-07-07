@@ -335,6 +335,7 @@ const QUESTS = {
 const questSystem = {
     // 初始化任务系统
     init: function() {
+        console.log('任务系统初始化完成');
         this.activeQuests = [];
         this.completedQuests = [];
         this.questLog = [];
@@ -411,12 +412,15 @@ const questSystem = {
         // 添加经验
         if (quest.rewards.experience) {
             // 经验系统待实现
+            console.log(`获得经验: ${quest.rewards.experience}`);
         }
 
         // 更新状态
         quest.status = 'completed';
         this.activeQuests = this.activeQuests.filter(id => id !== questId);
         this.completedQuests.push(questId);
+        if (typeof EventBus !== "undefined") EventBus.emit("quest:completed", { questId: questId });
+        if (typeof GameLogger !== "undefined") GameLogger.quest("完成任务");
 
         // 记录日志
         this.questLog.push({
@@ -492,6 +496,7 @@ const questSystem = {
             const progress = obj.current || 0;
             const target = obj.amount || 1;
             const isCompleted = obj.completed;
+            const progressPercent = Math.min(100, (progress / target) * 100);
 
             html += `<div class="objective ${isCompleted ? 'completed' : ''}">`;
             html += `<span class="objective-icon">${isCompleted ? '✅' : '⬜'}</span>`;
@@ -586,12 +591,28 @@ const questSystem = {
     },
 
     // 获取当前活跃任务
+    getActiveQuests: function() {
+        return this.activeQuests.map(id => ({ id, ...QUESTS[id] }));
+    },
 
     // 获取已完成任务
+    getCompletedQuests: function() {
+        return this.completedQuests.map(id => ({ id, ...QUESTS[id] }));
+    },
 
     // 检查任务是否完成
+    isQuestCompleted: function(questId) {
+        return this.completedQuests.includes(questId);
+    },
 
     // 获取任务进度
+    getQuestProgress: function(questId) {
+        const quest = QUESTS[questId];
+        if (!quest) return 0;
+
+        const completedObjectives = quest.objectives.filter(obj => obj.completed).length;
+        return Math.floor((completedObjectives / quest.objectives.length) * 100);
+    }
 };
 
 // 初始化任务系统

@@ -55,6 +55,8 @@ const mapSystem = {
         this.updateMapButtons();
 
         showMessage(`到达了${map.name}`, 'success');
+        if (typeof EventBus !== "undefined") EventBus.emit("map:entered", { mapId: mapId });
+        if (typeof GameLogger !== "undefined") GameLogger.map("到达了" + map.name);
         return true;
     },
 

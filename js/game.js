@@ -4,59 +4,80 @@
 const game = {
     // 初始化游戏
     init: function() {
+        console.log('游戏初始化开始...');
 
         try {
             // 初始化音效系统
             if (typeof initSoundSystem === 'function') {
                 initSoundSystem();
+                console.log('✓ 音效系统');
             }
 
             // 初始化各个系统
             initPlayer();
+            console.log('✓ 玩家系统');
 
             initTimeSystem();
+            console.log('✓ 时间系统');
 
             initStorageSystem();
+            console.log('✓ 存储系统');
 
             initCraftSystem();
+            console.log('✓ 制作系统');
 
             initNPCSystem();
+            console.log('✓ NPC系统');
 
             initBattleSystem();
+            if (typeof GameStateMachine !== "undefined") GameStateMachine.transition("main");
+            if (typeof WorldState !== "undefined") WorldState.init();
+            console.log('✓ 战斗系统');
 
             initMapSystem();
+            console.log('✓ 地图系统');
 
             // 初始化新增系统
             if (typeof initEventSystem === 'function') {
                 initEventSystem();
+                console.log('✓ 事件系统');
             }
 
             if (typeof initQuestSystem === 'function') {
                 initQuestSystem();
+                console.log('✓ 任务系统');
             }
 
             if (typeof initWeatherSystem === 'function') {
                 initWeatherSystem();
+                console.log('✓ 天气系统');
             }
 
             if (typeof initAchievementSystem === 'function') {
                 initAchievementSystem();
+                console.log('✓ 成就系统');
             }
 
             // 应用已建造建筑的效果（存档加载后恢复）
             if (typeof applyAllBuildingEffects === 'function') {
                 applyAllBuildingEffects();
+                console.log('✓ 建筑效果');
             }
 
             // 更新UI
             updateUI();
+            console.log('✓ UI更新');
 
             // 初始化键盘快捷键
             if (typeof initKeyboardShortcuts === 'function') {
                 initKeyboardShortcuts();
+                console.log('✓ 键盘快捷键');
             }
 
+            console.log('游戏初始化完成！');
             showMessage('欢迎来到超苦逼冒险者！', 'info');
+        if (typeof EventBus !== "undefined") EventBus.emit("game:init", {});
+        if (typeof GameLogger !== "undefined") GameLogger.system("游戏初始化完成");
 
             // 显示新手教程（首次游戏）
             if (player.gameTime.day === 1 && player.gameTime.hour === 6) {
