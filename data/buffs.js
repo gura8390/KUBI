@@ -1,109 +1,112 @@
 // Buff/Debuff Definitions
-// All status effects defined here
+// 纯数据驱动，零 function
 
 var BUFF_DEFS = {
     // === Debuffs ===
     poison: {
-        name: 'Poison',
+        name: '中毒',
         icon: '☠️',
-        description: 'Lose 3% max HP per turn',
+        description: '每回合损失3%最大生命',
         type: 'debuff',
         maxStacks: 3,
-        onTick: function(target, stacks, ctx) {
-            var dmg = Math.floor(100 * 0.03 * stacks);
-            if (target === 'player') player.health = Math.max(0, player.health - dmg);
-            else if (ctx && ctx.monster) ctx.monster.health = Math.max(0, ctx.monster.health - dmg);
-        }
+        skipTurn: false,
+        tickEffect: { type: 'damagePercent', stat: 'health', base: 'maxHp', percent: 3 }
     },
     burn: {
-        name: 'Burn',
+        name: '灼烧',
         icon: '🔥',
-        description: 'Lose 5% current HP per turn',
+        description: '每回合损失5%当前生命',
         type: 'debuff',
         maxStacks: 3,
-        onTick: function(target, stacks, ctx) {
-            var hp = target === 'player' ? player.health : (ctx && ctx.monster ? ctx.monster.health : 100);
-            var dmg = Math.floor(hp * 0.05 * stacks);
-            if (target === 'player') player.health = Math.max(0, player.health - dmg);
-            else if (ctx && ctx.monster) ctx.monster.health = Math.max(0, ctx.monster.health - dmg);
-        }
+        skipTurn: false,
+        tickEffect: { type: 'damagePercent', stat: 'health', base: 'currentHp', percent: 5 }
     },
     freeze: {
-        name: 'Freeze',
+        name: '冰冻',
         icon: '❄️',
-        description: 'Skip turn',
+        description: '跳过回合',
         type: 'debuff',
         maxStacks: 1,
-        onTick: function() {}
+        skipTurn: true,
+        tickEffect: null
     },
     stun: {
-        name: 'Stun',
+        name: '眩晕',
         icon: '💫',
-        description: 'Skip turn',
+        description: '跳过回合',
         type: 'debuff',
         maxStacks: 1,
-        onTick: function() {}
+        skipTurn: true,
+        tickEffect: null
     },
     bleed: {
-        name: 'Bleed',
+        name: '流血',
         icon: '🩸',
-        description: 'Lose 5 HP per turn',
+        description: '每回合损失5×层数生命',
         type: 'debuff',
         maxStacks: 3,
-        onTick: function(target, stacks) {
-            var dmg = 5 * stacks;
-            if (target === 'player') player.health = Math.max(0, player.health - dmg);
-        }
+        skipTurn: false,
+        tickEffect: { type: 'damageFlat', stat: 'health', base: 5 }
     },
 
     // === Buffs ===
     attackUp: {
-        name: 'Attack Up',
+        name: '攻击提升',
         icon: '⚔️',
-        description: 'Attack increased',
+        description: '攻击力增加',
         type: 'buff',
         maxStacks: 3,
+        skipTurn: false,
+        tickEffect: null,
         modifiers: { attack: 10 }
     },
     defenseUp: {
-        name: 'Defense Up',
+        name: '防御提升',
         icon: '🛡️',
-        description: 'Defense increased',
+        description: '防御力增加',
         type: 'buff',
         maxStacks: 3,
+        skipTurn: false,
+        tickEffect: null,
         modifiers: { defense: 5 }
     },
     warCry: {
-        name: 'War Cry',
+        name: '战吼',
         icon: '📢',
-        description: 'Attack +30%',
+        description: '攻击力+30%',
         type: 'buff',
         maxStacks: 1,
+        skipTurn: false,
+        tickEffect: null,
         modifiers: { attackPercent: 30 }
     },
     invincible: {
-        name: 'Invincible',
+        name: '无敌',
         icon: '🛡️',
-        description: 'Immune to damage',
+        description: '免疫所有伤害',
         type: 'buff',
-        maxStacks: 1
+        maxStacks: 1,
+        skipTurn: false,
+        tickEffect: null,
+        modifiers: { invincible: true }
     },
     counter: {
-        name: 'Counter',
+        name: '反击',
         icon: '🔄',
-        description: 'Counter attack on hit',
+        description: '受击后反击',
         type: 'buff',
-        maxStacks: 1
+        maxStacks: 1,
+        skipTurn: false,
+        tickEffect: null,
+        modifiers: { counter: true }
     },
     regen: {
-        name: 'Regen',
+        name: '再生',
         icon: '💚',
-        description: 'Heal over time',
+        description: '每回合回复5×层数生命',
         type: 'buff',
         maxStacks: 3,
-        onTick: function(target, stacks) {
-            var heal = 5 * stacks;
-            if (target === 'player') player.health = Math.min(100, player.health + heal);
-        }
+        skipTurn: false,
+        tickEffect: { type: 'healFlat', stat: 'health', base: 5 }
     }
 };

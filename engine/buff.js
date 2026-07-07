@@ -1,52 +1,89 @@
 // Unified Buff/Debuff System
-// All status effects use a unified data structure and are processed each turn
+// 纯数据驱动，自动解释 tickEffect
 
-const BuffSystem = {
-    // Active buffs on player and monster
-    activeBuffs: {
-        player: [],
-        monster: []
-    },
+var BuffSystem = {
+    activeBuffs: { player: [], monster: [] },
 
-    // Register a new buff/debuff
     add: function(target, buffId, duration, stacks) {
         var buffDef = BUFF_DEFS[buffId];
         if (!buffDef) return false;
-
-        // Check if buff already exists
         var existing = this.activeBuffs[target].find(function(b) { return b.id === buffId; });
         if (existing) {
-            // Refresh duration, add stacks
             existing.duration = Math.max(existing.duration, duration);
             existing.stacks = Math.min((existing.stacks || 1) + (stacks || 1), buffDef.maxStacks || 1);
         } else {
-            this.activeBuffs[target].push({
-                id: buffId,
-                duration: duration,
-                stacks: stacks || 1,
-                tickCount: 0
-            });
+            this.activeBuffs[target].push({ id: buffId, duration: duration, stacks: stacks || 1, tickCount: 0 });
         }
         return true;
     },
 
-    // Remove a buff
     remove: function(target, buffId) {
         this.activeBuffs[target] = this.activeBuffs[target].filter(function(b) { return b.id !== buffId; });
     },
 
-    // Check if target has a buff
     has: function(target, buffId) {
         return this.activeBuffs[target].some(function(b) { return b.id === buffId; });
     },
 
-    // Get buff stacks
     getStacks: function(target, buffId) {
         var buff = this.activeBuffs[target].find(function(b) { return b.id === buffId; });
         return buff ? buff.stacks : 0;
     },
 
-    // Process all buffs for a target (called each turn)
+    // 解释 tickEffect 数据并执行
+    _applyTickEffect: function(target, buffDef, stacks, context) {
+        var effect = buffDef.tickEffect;
+        if (!effect) return;
+
+        var isPlayer = target === 'player';
+        var hp = isPlayer ? player.health : (context.monster ? context.monster.health : 100);
+        var maxHp = isPlayer ? 100 : (context.monster ? context.monster.maxHealth : 100);
+        var dmg = 0;
+
+        switch (effect.type) {
+            case 'damagePercent':
+                var base = effect.base === 'maxHp' ? maxHp : hp;
+                dmg = Math.floor(base * (effect.percent / 100) * stacks);
+                if (isPlayer) player.health = Math.max(0, player.health - dmg);
+                else if (context.monster) context.monster.health = Math.max(0, context.monster.health - dmg);
+                break;
+
+            case 'damageFlat':
+                dmg = effect.base * stacks;
+                if (isPlayer) player.health = Math.max(0, player.health - dmg);
+                else if (context.monster) context.monster.health = Math.max(0, context.monster.health - dmg);
+                break;
+
+            case 'healFlat':
+                var heal = effect.base * stacks;
+                if (isPlayer) player.health = Math.min(100, player.health + heal);
+                else if (context.monster) context.monster.health = Math.min(context.monster.maxHealth, context.monster.health + heal);
+                break;
+
+            case 'healPercent':
+                var healBase = effect.base === 'maxHp' ? maxHp : hp;
+                var healAmt = Math.floor(healBase * (effect.percent / 100) * stacks);
+                if (isPlayer) player.health = Math.min(100, player.health + healAmt);
+                else if (context.monster) context.monster.health = Math.min(context.monster.maxHealth, context.monster.health + healAmt);
+                break;
+
+            case 'statFlat':
+                if (isPlayer && player[effect.stat] !== undefined) {
+                    player[effect.stat] = Math.max(0, Math.min(100, player[effect.stat] + effect.base * stacks));
+                }
+                break;
+        }
+    },
+
+    // 检查是否跳过回合
+    shouldSkipTurn: function(target) {
+        var self = this;
+        return this.activeBuffs[target].some(function(buff) {
+            var def = BUFF_DEFS[buff.id];
+            return def && def.skipTurn;
+        });
+    },
+
     process: function(target, context) {
         var toRemove = [];
         var self = this;
@@ -55,32 +92,17 @@ const BuffSystem = {
             var buffDef = BUFF_DEFS[buff.id];
             if (!buffDef) { toRemove.push(index); return; }
 
-            // Execute tick effect
-            if (buffDef.onTick) {
-                buffDef.onTick(target, buff.stacks, context);
-            }
+            // 执行数据驱动的 tick 效果
+            self._applyTickEffect(target, buffDef, buff.stacks, context || {});
 
-            // Tick counter
             buff.tickCount++;
-
-            // Reduce duration
             buff.duration--;
-            if (buff.duration <= 0) {
-                // Execute onExpire
-                if (buffDef.onExpire) {
-                    buffDef.onExpire(target, buff.stacks, context);
-                }
-                toRemove.push(index);
-            }
+            if (buff.duration <= 0) toRemove.push(index);
         });
 
-        // Remove expired buffs (reverse order)
-        toRemove.reverse().forEach(function(i) {
-            self.activeBuffs[target].splice(i, 1);
-        });
+        toRemove.reverse().forEach(function(i) { self.activeBuffs[target].splice(i, 1); });
     },
 
-    // Get all active buff icons for display
     getIcons: function(target) {
         return this.activeBuffs[target].map(function(buff) {
             var buffDef = BUFF_DEFS[buff.id];
@@ -91,7 +113,6 @@ const BuffSystem = {
         }).join(' ');
     },
 
-    // Get stat modifiers from all buffs
     getStatModifiers: function(target, stat) {
         var total = 0;
         this.activeBuffs[target].forEach(function(buff) {
@@ -103,28 +124,24 @@ const BuffSystem = {
         return total;
     },
 
-    // Clear all buffs
-    clearAll: function(target) {
-        this.activeBuffs[target] = [];
+    hasInvincible: function(target) {
+        return this.activeBuffs[target].some(function(buff) {
+            var def = BUFF_DEFS[buff.id];
+            return def && def.modifiers && def.modifiers.invincible;
+        });
     },
 
-    // Get buff count
-    count: function(target) {
-        return this.activeBuffs[target].length;
+    hasCounter: function(target) {
+        return this.activeBuffs[target].some(function(buff) {
+            var def = BUFF_DEFS[buff.id];
+            return def && def.modifiers && def.modifiers.counter;
+        });
     },
 
-    // Serialize for save
-    serialize: function() {
-        return JSON.parse(JSON.stringify(this.activeBuffs));
-    },
-
-    // Deserialize from save
-    deserialize: function(data) {
-        if (data && data.player && data.monster) {
-            this.activeBuffs = data;
-        }
-    }
+    clearAll: function(target) { this.activeBuffs[target] = []; },
+    count: function(target) { return this.activeBuffs[target].length; },
+    serialize: function() { return JSON.parse(JSON.stringify(this.activeBuffs)); },
+    deserialize: function(data) { if (data && data.player && data.monster) this.activeBuffs = data; }
 };
 
-// Register to namespace
 if (typeof KBA !== 'undefined') KBA.systems.buffSystem = BuffSystem;

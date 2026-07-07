@@ -264,12 +264,8 @@ var MAPS = {
                 25: 'abyssWorm', 30: 'shadowDragon', 35: 'chaosElemental', 40: 'boneColossus',
                 45: 'voidWraith', 50: 'worldEnder'
             },
-            floorMultiplier: function(floor) {
-                return 1 + (floor - 1) * 0.15;
-            },
-            soulMultiplier: function(floor) {
-                return 1 + (floor - 1) * 0.2;
-            }
+            floorMultiplier: 0.15,
+            soulMultiplier: 0.2
         }
     }
 };

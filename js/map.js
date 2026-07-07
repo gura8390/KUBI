@@ -603,7 +603,7 @@ const mapSystem = {
         if (typeof battleSystem === 'undefined') return;
 
         const config = MAPS.dungeon.dungeonConfig;
-        const multiplier = config.floorMultiplier(floor);
+        const multiplier = 1 + (floor - 1) * config.floorMultiplier;
 
         // 临时修改怪物属性（按楼层倍率缩放）
         const originalMonster = MONSTERS[monsterId];
