@@ -229,6 +229,11 @@ const battleSystem = {
             return;
         }
 
+        // Boss特殊行为处理
+        if (this.currentMonster.boss) {
+            this.processBossBehavior();
+        }
+
         // 计算怪物伤害
         let damage = this.currentMonster.attack - player.defense;
 
@@ -270,7 +275,7 @@ const battleSystem = {
     victory: function() {
         if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('victory');
         this.addBattleLog(`击败了${this.currentMonster.name}！`, 'system-message');
-        if (typeof WorldState !== "undefined") WorldState.recordBossKill(this.currentMonster.id);
+        if (typeof WorldState !== "undefined" && this.currentMonster.boss) WorldState.recordBossKill(this.currentMonster.id);
         if (typeof GameLogger !== "undefined") GameLogger.battle("击败了" + this.currentMonster.name);
         if (typeof EncyclopediaSystem !== "undefined") EncyclopediaSystem.recordKill(this.currentMonster.id);
 
@@ -385,6 +390,48 @@ const battleSystem = {
 
         // 恢复部分生命
         player.health = 30;
+    },
+
+    // Boss特殊行为处理
+    processBossBehavior: function() {
+        const monster = this.currentMonster;
+        const hpPercent = this.monsterHealth / this.monsterMaxHealth;
+
+        // 阶段转换
+        if (hpPercent <= 0.25 && !monster._phase3) {
+            monster._phase3 = true;
+            this.addBattleLog(monster.name + '进入狂暴状态！攻击力大幅提升！', 'system-message');
+            monster.attack = Math.floor(monster.attack * 1.5);
+        } else if (hpPercent <= 0.5 && !monster._phase2) {
+            monster._phase2 = true;
+            this.addBattleLog(monster.name + '进入第二阶段！', 'system-message');
+            monster.attack = Math.floor(monster.attack * 1.2);
+        }
+
+        // Boss特殊技能（30%概率）
+        if (Math.random() < 0.3) {
+            const skills = ['aoe', 'debuff', 'heal'];
+            const skill = skills[Math.floor(Math.random() * skills.length)];
+
+            switch (skill) {
+                case 'aoe':
+                    const aoeDmg = Math.floor(monster.attack * 0.6);
+                    player.health = Math.max(0, player.health - aoeDmg);
+                    this.addBattleLog(monster.name + '释放范围攻击！造成' + aoeDmg + '点伤害', 'enemy-action');
+                    break;
+                case 'debuff':
+                    if (typeof BuffSystem !== 'undefined') {
+                        BuffSystem.add('player', 'poison', 3, 1);
+                        this.addBattleLog(monster.name + '释放毒雾！你中毒了！', 'enemy-action');
+                    }
+                    break;
+                case 'heal':
+                    const healAmount = Math.floor(monster.maxHealth * 0.1);
+                    this.monsterHealth = Math.min(this.monsterMaxHealth, this.monsterHealth + healAmount);
+                    this.addBattleLog(monster.name + '恢复了' + healAmount + '点生命！', 'system-message');
+                    break;
+            }
+        }
     },
 
     // 结束战斗

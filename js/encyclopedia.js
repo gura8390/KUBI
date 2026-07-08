@@ -94,16 +94,24 @@ var EncyclopediaSystem = {
         content += '<h4>怪物图鉴</h4>';
 
         if (typeof MONSTERS !== 'undefined') {
-            Object.keys(MONSTERS).forEach(function(id) {
-                var entry = EncyclopediaSystem.monsters[id];
-                var monster = MONSTERS[id];
-                var kills = entry ? entry.kills : 0;
-                var discovered = entry && entry.discovered;
-                content += '<div style="margin:5px 0;padding:5px;border:1px solid #ccc;">';
+            Object.entries(MONSTERS).forEach(function(entry) {
+                var id = entry[0], monster = entry[1];
+                var monsterData = EncyclopediaSystem.monsters[id];
+                var kills = monsterData ? monsterData.kills : 0;
+                var discovered = kills > 0;
+
+                content += '<div style="margin:5px 0;padding:8px;border:1px solid #ccc;">';
                 content += '<strong>' + (discovered ? monster.name : '???') + '</strong>';
                 content += ' - 击杀: ' + kills;
-                if (entry && entry.lore1) {
-                    content += '<br><em>' + (monster.description || '暂无描述') + '</em>';
+
+                if (discovered) {
+                    content += '<br>HP: ' + monster.health + ' | 攻击: ' + monster.attack + ' | 防御: ' + monster.defense;
+                    if (monster.drops) {
+                        content += '<br>掉落: ' + monster.drops.join(', ');
+                    }
+                    if (monster.lore) {
+                        content += '<br><em>' + monster.lore + '</em>';
+                    }
                 }
                 content += '</div>';
             });
@@ -123,6 +131,28 @@ var EncyclopediaSystem = {
                     content += '<br><em>' + lore.substring(0, 50) + '...</em>';
                 }
                 content += '</div>';
+            });
+        }
+
+        content += '<h4>物品图鉴</h4>';
+        if (typeof ITEMS !== 'undefined') {
+            var itemTypes = ['weapon', 'armor', 'resource', 'food', 'potion', 'consumable'];
+            itemTypes.forEach(function(type) {
+                var typeItems = Object.entries(ITEMS).filter(function(e) { return e[1].type === type; });
+                if (typeItems.length > 0) {
+                    content += '<h5>' + type.charAt(0).toUpperCase() + type.slice(1) + '</h5>';
+                    typeItems.forEach(function(entry) {
+                        var id = entry[0], item = entry[1];
+                        var itemData = EncyclopediaSystem.items[id];
+                        var crafts = itemData ? itemData.crafts : 0;
+                        content += '<div style="margin:3px 0;padding:3px;border:1px solid #eee;">';
+                        content += '<strong>' + item.icon + ' ' + item.name + '</strong>';
+                        if (item.attack) content += ' | 攻击:' + item.attack;
+                        if (item.defense) content += ' | 防御:' + item.defense;
+                        if (crafts > 0) content += ' | 制作:' + crafts + '次';
+                        content += '</div>';
+                    });
+                }
             });
         }
 

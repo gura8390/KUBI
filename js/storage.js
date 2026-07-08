@@ -106,7 +106,8 @@ const storage = {
                 version: this.CURRENT_VERSION,
                 timestamp: Date.now(),
                 player: playerData,
-                currentMap: (typeof mapSystem !== 'undefined') ? mapSystem.currentMap : 'darkForest'
+                currentMap: (typeof mapSystem !== 'undefined') ? mapSystem.currentMap : 'darkForest',
+                worldState: (typeof WorldState !== 'undefined') ? WorldState.serialize() : null
             };
 
             const jsonStr = JSON.stringify(saveData);
@@ -149,6 +150,11 @@ return false;
             // 恢复地图状态（直接设置，不触发 switchMap 的体力/时间消耗）
             if (saveData.currentMap && typeof mapSystem !== 'undefined') {
                 mapSystem.currentMap = saveData.currentMap;
+            }
+
+            // 恢复世界状态
+            if (saveData.worldState && typeof WorldState !== 'undefined') {
+                WorldState.deserialize(saveData.worldState);
             }
 return true;
         } catch (error) {

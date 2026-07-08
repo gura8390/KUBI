@@ -27,7 +27,7 @@ var NPCS = {
     },
     merchant: {
         name: '商人',
-        description: '小镇的商人，可以交易各种物品。',
+        description: '小镇的商人，可以交易各种物品。城镇等级越高，商品越丰富。',
         location: 'town',
         dialogue: [
             '欢迎光临！我这里有很多好东西。',
@@ -40,7 +40,22 @@ var NPCS = {
             { give: { gold: 5 }, receive: { berry: 10 }, name: '购买浆果' },
             { give: { gold: 8 }, receive: { rawMeat: 5 }, name: '购买生肉' },
             { give: { gold: 10 }, receive: { wood: 10 }, name: '购买木头' }
-        ]
+        ],
+        tieredTrades: {
+            2: [
+                { give: { gold: 15 }, receive: { iron: 5 }, name: '购买铁矿' },
+                { give: { gold: 20 }, receive: { herb: 8 }, name: '购买草药' }
+            ],
+            3: [
+                { give: { gold: 25 }, receive: { silk: 3 }, name: '购买丝绸' },
+                { give: { gold: 30 }, receive: { lightDust: 2 }, name: '购买光尘' },
+                { give: { gold: 30 }, receive: { darkDust: 2 }, name: '购买暗尘' }
+            ],
+            4: [
+                { give: { gold: 50 }, receive: { crystal: 2 }, name: '购买水晶' },
+                { give: { gold: 40 }, receive: { soul: 3 }, name: '购买灵魂' }
+            ]
+        }
     },
     mayor: {
         name: '镇长',

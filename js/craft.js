@@ -304,6 +304,11 @@ const craftSystem = {
         const recipe = CRAFTING_RECIPES[recipeId];
         if (!recipe) return false;
 
+        // 检查阵营限制
+        if (recipe.faction && player.faction !== recipe.faction) {
+            return false;
+        }
+
         // 检查工作台
         if (recipe.station && !hasBuilding(recipe.station)) {
             return false;
@@ -371,6 +376,23 @@ const craftSystem = {
 
         // 应用建筑效果
         applyBuildingEffect(buildingId);
+
+        // 城镇发展 - 特定建筑提升城镇等级
+        const townUpgradeBuildings = {
+            'workbench': 2,
+            'alchemyTable': 3,
+            'scienceTable': 4,
+            'library': 5
+        };
+        if (townUpgradeBuildings[buildingId] && typeof WorldState !== 'undefined') {
+            const currentLevel = WorldState.state.townLevel;
+            const targetLevel = townUpgradeBuildings[buildingId];
+            if (currentLevel < targetLevel) {
+                WorldState.state.townLevel = targetLevel;
+                WorldState._recordHistory('townUpgrade', { level: targetLevel });
+                showMessage(`城镇发展到${targetLevel}级！商人商品更新！`, 'success');
+            }
+        }
 
         if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('build');
         showMessage(`建造了${building.name}`, 'success');

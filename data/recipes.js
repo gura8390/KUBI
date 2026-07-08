@@ -125,5 +125,11 @@ var CRAFTING_RECIPES = {
     coolPotion: { result: 'coolPotion', ingredients: { iceDew: 1, herb: 1 }, station: 'alchemyTable', name: '降温药剂' },
 
     // 科研桌配方
-    returnScroll: { result: 'returnScroll', ingredients: { paper: 1, soul: 1 }, station: 'scienceTable', name: '回城卷轴' }
+    returnScroll: { result: 'returnScroll', ingredients: { paper: 1, soul: 1 }, station: 'scienceTable', name: '回城卷轴' },
+
+    // 阵营专属配方
+    cannibalAxe: { result: 'cannibalAxe', ingredients: { bone: 10, iron: 5, rawMeat: 5 }, station: 'workbench', name: '食人族战斧', faction: 'cannibal' },
+    cannibalArmor: { result: 'cannibalArmor', ingredients: { bone: 15, silk: 3, iron: 3 }, station: 'workbench', name: '食人族骨甲', faction: 'cannibal' },
+    mageStaff: { result: 'mageStaff', ingredients: { lightDust: 5, darkDust: 5, wood: 3 }, station: 'alchemyTable', name: '法师法杖', faction: 'mage' },
+    mageRobe: { result: 'mageRobe', ingredients: { silk: 5, lightDust: 3, herb: 3 }, station: 'alchemyTable', name: '法师长袍', faction: 'mage' }
 };

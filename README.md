@@ -2,7 +2,7 @@
 
 > 数据驱动的 HTML5 生存冒险游戏，数据层零 function，引擎层完全通用。
 
-![Version](https://img.shields.io/badge/Version-7.2-purple)
+![Version](https://img.shields.io/badge/Version-8.0-purple)
 ![Architecture](https://img.shields.io/badge/Architecture-Pure--Data-green)
 
 ---
@@ -21,7 +21,6 @@
 ┌─────────────────────────────────────────────────────────────────────┐
 │                           UI层 (index.html)                         │
 ├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐             │
 │  │   Action    │───→│  Condition  │───→│   Effect    │             │
 │  │   System    │    │+Expression  │    │   System    │             │
@@ -50,7 +49,6 @@
 │  │  onLoad → onGameStart → onTick → onBattleStart → onUnload  │   │
 │  │  支持数据注入: items/monsters/maps/npcs/recipes/skills/buffs │   │
 │  └─────────────────────────────────────────────────────────────┘   │
-│                                                                     │
 ├─────────────────────────────────────────────────────────────────────┤
 │  引擎层 (engine/) - 16个文件 - 通用能力，零游戏专有内容              │
 ├─────────────────────────────────────────────────────────────────────┤
@@ -62,49 +60,42 @@
 
 ---
 
-## 游戏生命周期
+## 核心系统
 
-```
-玩家输入
-    │
-    ▼
-┌─────────────┐
-│   Action    │ ← 统一行动执行器
-└──────┬──────┘
-       │ 检查前置条件
-       ▼
-┌─────────────┐
-│  Condition  │ ← 统一条件系统 + Expression
-└──────┬──────┘
-       │ 执行效果
-       ▼
-┌─────────────┐
-│   Effect    │ ← 统一效果处理器 (13种)
-└──────┬──────┘
-       │ 应用 Buff/Debuff
-       ▼
-┌─────────────┐
-│    Buff     │ ← 纯数据驱动，自动解释 tickEffect
-└──────┬──────┘
-       │ 触发器检查
-       ▼
-┌─────────────┐
-│   Trigger   │ ← 18种触发事件
-└──────┬──────┘
-       │ 发送事件 (HIGH → NORMAL → LOW)
-       ▼
-┌─────────────┐
-│  EventBus   │
-└──────┬──────┘
-       │ 分发给订阅者
-       ├──────────┬──────────┬──────────┐
-       ▼          ▼          ▼          ▼
-  WorldState    Logger    Quest    Achievement
-  (历史记录)    (Replay)
-       │
-       ▼
-   UI 更新
-```
+### 战斗系统
+- 8个主动技能 + 11种状态效果
+- 48种怪物 + 5种AI类型 + Boss阶段转换
+- BuffSystem 纯数据驱动
+- Boss特殊技能（AOE/减益/治疗）
+- 13个Boss有阶段转换机制
+
+### 制作系统
+- 74种烹饪 + 84种制作配方 + 4个阵营配方
+- 22种建筑 + 城镇发展等级系统
+- 阵营专属装备（食人族/法师）
+- 阵营检查系统（canCraft检查阵营限制）
+
+### 体温系统
+- 天气/昼夜/装备/建筑影响
+- 影响命中率/制作成功率/体力恢复
+- 季节性资源加成
+
+### 世界状态系统
+- NPC关系 + 好感度折扣 + 阵营声望等级
+- Boss击杀后地图变化（6种效果）
+- 地图探索度（访问次数影响资源获取率）
+- 城镇发展等级影响商人商品
+- NPC记忆系统（记录对话/交易次数）
+
+### 图鉴系统
+- 怪物图鉴（击杀数/掉落物/弱点/背景故事）
+- 物品图鉴（制作次数/用途/来源）
+
+### 事件系统
+- 21个随机事件（季节/天气/行为触发）
+- 季节性事件（春日祭典/夏日收获/秋日感恩/冬日新年）
+- 天气联动事件（暴风雨沉船/雷击火灾/彩虹祝福）
+- 玩家行为触发事件（战斗疲劳/制作灵感）
 
 ---
 
@@ -131,40 +122,50 @@
 
 ---
 
-## 数据层 (data/) - 零 function
+## 数据层 (data/)
 
 | 文件 | 内容 |
 |------|------|
-| items.js | 物品+建筑数据 |
-| monsters.js | 怪物数据 |
-| maps.js | 地图数据 (倍率用数值，非函数) |
-| npcs.js | NPC数据 |
-| recipes.js | 烹饪+制作配方 |
-| skills.js | 技能数据 |
-| events.js | 随机事件 |
-| buffs.js | 状态效果 (tickEffect纯数据) |
+| items.js | 物品(218种) + 建筑(22种) |
+| monsters.js | 怪物(48种) + Boss标记 + 背景故事 |
+| maps.js | 地图(17张) |
+| npcs.js | NPC(18个) + 等级交易 |
+| recipes.js | 配方(158种) + 阵营配方 |
+| skills.js | 技能(8个) |
+| events.js | 事件(21个) |
+| buffs.js | 状态效果(11种) |
 | scenes.js | 动态场景描述 |
 
 ---
 
-## 核心系统
+## 游戏内容
 
-### 战斗系统
-- 8个主动技能 + 6种状态效果
-- 48种怪物 + 5种AI类型
-- BuffSystem 纯数据驱动
+### 地图 (17张)
+幽暗森林、小镇、溪流、死亡山谷、酸沼泽、蜘蛛洞穴、古老废墟、幽暗矿洞、贼窝、静谧森林、食人族部落、魔法公会、火山地带、海底神殿、天空岛屿、地牢(50层)
 
-### 制作系统
-- 74种烹饪 + 84种制作配方
-- 22种建筑
+### 怪物 (48种)
+- 普通怪物: 26种
+- 元素系: 12种
+- 地牢Boss: 10种 + 3个野外Boss
 
-### 体温系统
-- 天气/昼夜/装备/建筑影响
-- 影响命中率/制作成功率/体力恢复
+### NPC (18个)
+- 小镇: 10个
+- 其他地图: 8个
+- 阵营军需官: 2个
 
-### 世界状态
-- NPC关系 + 历史记录
-- Boss击杀 + 阵营声望
+### 物品 (218种)
+- 武器: 23种 (含4个阵营专属)
+- 防具: 17种 (含4个阵营专属)
+- 饰品: 5种
+- 资源: 56种
+- 食物: 74种
+- 药剂: 7种
+- 消耗品: 6种
+- 建筑: 22种
+
+### 配方 (158种)
+- 烹饪: 74种
+- 制作: 84种 (含4个阵营配方)
 
 ---
 
@@ -172,55 +173,36 @@
 
 ### 添加新物品
 ```javascript
-// data/items.js - 纯数据
+// data/items.js
 newItem: { name: '物品名', type: 'resource', icon: 'X', stackable: true, maxStack: 99 }
 ```
 
-### 添加新Buff
+### 添加新配方
 ```javascript
-// data/buffs.js - 纯数据，零function
-newBuff: {
-    name: 'Buff名', icon: 'X', type: 'debuff', maxStacks: 3,
-    skipTurn: false,
-    tickEffect: { type: 'damagePercent', stat: 'health', base: 'maxHp', percent: 3 }
-}
+// data/recipes.js
+newRecipe: { result: 'newItem', name: '配方名', ingredients: { wood: 3 } }
 ```
 
 ### 添加新怪物
 ```javascript
-// data/monsters.js - 纯数据
-newMonster: { name: '怪物名', health: 100, attack: 20, defense: 10, ai: 'normal' }
+// data/monsters.js
+newMonster: { name: '怪物名', health: 100, attack: 20, defense: 10, ai: 'normal', boss: true }
 ```
 
-### MOD 插件示例
+### 添加新Buff
 ```javascript
-PluginSystem.register({
-    id: 'my-mod',
-    name: 'My Mod',
-    version: '1.0.0',
-    data: {
-        items: { myItem: { name: '自定义物品', type: 'resource' } },
-        monsters: { myMonster: { name: '自定义怪物', health: 200, attack: 30 } }
-    },
-    onGameStart: function() { console.log('Mod loaded!'); }
-});
+// data/buffs.js
+newBuff: { name: 'Buff名', icon: 'X', type: 'debuff', maxStacks: 3, tickEffect: { type: 'damagePercent', stat: 'health', base: 'maxHp', percent: 3 } }
 ```
 
-### 条件 + 表达式
+### 条件系统
 ```javascript
 ConditionSystem.evaluate({ type: 'expression', target: 'hp < maxHp * 0.3' })
-ExpressionSystem.eval('attack * 1.5', { attack: 20 })  // = 30
 ```
 
-### 数据校验 (调试面板)
-按 `~` 打开调试面板，点击 "Data Validate" 直接在 UI 上显示校验结果。
-
-### 日志回放
+### 表达式系统
 ```javascript
-GameLogger.startRecording()
-// ... 游戏操作 ...
-GameLogger.stopRecording()
-GameLogger.exportReplay()
+ExpressionSystem.eval('attack * 1.5', { attack: 20 })  // = 30
 ```
 
 ---
@@ -243,6 +225,7 @@ xbvg-mimo/
 
 | 版本 | 主要变更 |
 |------|----------|
+| v8.0 | 世界演化版：WorldState集成、Boss阶段转换、阵营系统、图鉴系统、NPC记忆、城镇发展 |
 | v7.2 | 数据层零function、Buff纯数据驱动、Debug集成DataSchema |
 | v7.1 | EventBus优先级、Logger Replay、Condition+Expression融合 |
 | v7.0 | Schema校验器、条件系统、表达式系统、插件系统 |

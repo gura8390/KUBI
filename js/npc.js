@@ -9,6 +9,23 @@ const npcSystem = {
     init: function() {},
     // 初始化NPC系统
 
+    // NPC记忆系统
+    recordNPCAction: function(npcId, action) {
+        if (typeof WorldState === 'undefined') return;
+        const key = 'npc_' + npcId + '_' + action;
+        if (!WorldState.state.triggeredEvents[key]) {
+            WorldState.state.triggeredEvents[key] = 0;
+        }
+        WorldState.state.triggeredEvents[key]++;
+        WorldState._recordHistory('npcAction', { npcId, action, count: WorldState.state.triggeredEvents[key] });
+    },
+
+    getNPCActionCount: function(npcId, action) {
+        if (typeof WorldState === 'undefined') return 0;
+        const key = 'npc_' + npcId + '_' + action;
+        return WorldState.state.triggeredEvents[key] || 0;
+    },
+
     // 与NPC交互
     interact: function(npcId) {
         const npc = NPCS[npcId];
@@ -36,6 +53,24 @@ const npcSystem = {
 
         // 显示对话
         this.showDialogue(npcId);
+    },
+
+    // 获取阵营声望等级
+    getFactionLevel: function(faction) {
+        if (typeof WorldState === 'undefined') return 0;
+        const rep = WorldState.getFactionRep(faction);
+        if (rep >= 100) return 5; // 崇拜
+        if (rep >= 70) return 4;  // 尊敬
+        if (rep >= 40) return 3;  // 友好
+        if (rep >= 10) return 2;  // 中立
+        if (rep >= -20) return 1; // 冷淡
+        return 0; // 敌对
+    },
+
+    getFactionLevelName: function(faction) {
+        const level = this.getFactionLevel(faction);
+        const names = ['敌对', '冷淡', '中立', '友好', '尊敬', '崇拜'];
+        return names[level] || '未知';
     },
 
     // 显示阵营选择界面
@@ -70,6 +105,11 @@ const npcSystem = {
     chooseFaction: function(faction) {
         player.faction = faction;
 
+        // 记录阵营选择到世界状态
+        if (typeof WorldState !== "undefined") {
+            WorldState.changeFactionRep(faction, 20);
+        }
+
         if (faction === 'cannibal') {
             player.attack += 5;
             showMessage('你加入了食人族部落！攻击力+5', 'success');
@@ -92,8 +132,32 @@ const npcSystem = {
         const npc = NPCS[npcId];
         if (!npc) return;
 
-        // 随机选择对话
-        const dialogue = randomChoice(npc.dialogue);
+        // 记录NPC对话到世界状态
+        if (typeof WorldState !== "undefined") {
+            WorldState.recordNPCDialogue(npcId);
+            this.recordNPCAction(npcId, 'talk');
+        }
+
+        // 根据阵营声望选择对话
+        let dialogue = randomChoice(npc.dialogue);
+        if (typeof WorldState !== "undefined" && player.faction) {
+            const factionRep = WorldState.getFactionRep(player.faction);
+            if (factionRep >= 50 && npc.factionDialogue && npc.factionDialogue[player.faction]) {
+                dialogue = randomChoice(npc.factionDialogue[player.faction]);
+            } else if (factionRep <= -20 && npc.hostileDialogue) {
+                dialogue = randomChoice(npc.hostileDialogue);
+            }
+        }
+
+        // 根据NPC关系选择对话
+        if (typeof WorldState !== "undefined") {
+            const relation = WorldState.getNPCRelation(npcId);
+            if (relation >= 50 && npc.friendlyDialogue) {
+                dialogue = randomChoice(npc.friendlyDialogue);
+            } else if (relation <= -30 && npc.angryDialogue) {
+                dialogue = randomChoice(npc.angryDialogue);
+            }
+        }
 
         let content = `
             <div class="npc-dialogue">
@@ -136,16 +200,39 @@ const npcSystem = {
     },
 
     // 显示交易界面
+    // 获取交易折扣（好感度越高折扣越大）
+    _getTradeDiscount: function(npcId) {
+        if (typeof WorldState === 'undefined') return 1.0;
+        const relation = WorldState.getNPCRelation(npcId);
+        // 关系 -50~0: 无折扣
+        // 关系 0~30: 5%折扣
+        // 关系 30~60: 10%折扣
+        // 关系 60~100: 20%折扣
+        if (relation >= 60) return 0.8;
+        if (relation >= 30) return 0.9;
+        if (relation > 0) return 0.95;
+        return 1.0;
+    },
+
     showTrades: function(npcId) {
         const npc = NPCS[npcId];
         if (!npc || !npc.trades) return;
 
+        const townLevel = (typeof WorldState !== "undefined") ? WorldState.state.townLevel : 1;
+        let allTrades = [...npc.trades];
+        if (npc.tieredTrades) {
+            Object.entries(npc.tieredTrades).forEach(([tier, trades]) => {
+                if (townLevel >= parseInt(tier)) allTrades = allTrades.concat(trades);
+            });
+        }
+
         let content = `
             <div class="trade-list">
                 <h4>${npc.name}的交易</h4>
+                <p>城镇等级: ${townLevel}</p>
         `;
 
-        npc.trades.forEach((trade, index) => {
+        allTrades.forEach((trade, index) => {
             const canTrade = this.canTrade(npcId, index);
             const giveText = Object.entries(trade.give)
                 .map(([itemId, amount]) => `${getItemName(itemId)}×${amount}`)
@@ -180,13 +267,32 @@ const npcSystem = {
     // 检查是否可以交易
     canTrade: function(npcId, tradeIndex) {
         const npc = NPCS[npcId];
-        if (!npc || !npc.trades || tradeIndex >= npc.trades.length) return false;
+        if (!npc) return false;
 
-        const trade = npc.trades[tradeIndex];
+        const townLevel = (typeof WorldState !== 'undefined') ? WorldState.state.townLevel : 1;
+        let allTrades = [...(npc.trades || [])];
+        if (npc.tieredTrades) {
+            Object.entries(npc.tieredTrades).forEach(([tier, trades]) => {
+                if (townLevel >= parseInt(tier)) allTrades = allTrades.concat(trades);
+            });
+        }
 
-        // 检查给予的物品
+        if (tradeIndex >= allTrades.length) return false;
+        const trade = allTrades[tradeIndex];
+
+        // 检查NPC关系 - 关系太差拒绝交易
+        if (typeof WorldState !== 'undefined') {
+            const relation = WorldState.getNPCRelation(npcId);
+            if (relation < -50) {
+                return false;
+            }
+        }
+
+        // 检查给予的物品（考虑好感度折扣）
+        const discount = this._getTradeDiscount(npcId);
         for (const [itemId, amount] of Object.entries(trade.give)) {
-            if (!hasItem(itemId, amount)) {
+            const actualAmount = Math.max(1, Math.ceil(amount * discount));
+            if (!hasItem(itemId, actualAmount)) {
                 return false;
             }
         }
@@ -205,9 +311,18 @@ const npcSystem = {
     // 执行交易
     trade: function(npcId, tradeIndex) {
         const npc = NPCS[npcId];
-        if (!npc || !npc.trades || tradeIndex >= npc.trades.length) return false;
+        if (!npc) return false;
 
-        const trade = npc.trades[tradeIndex];
+        const townLevel = (typeof WorldState !== 'undefined') ? WorldState.state.townLevel : 1;
+        let allTrades = [...(npc.trades || [])];
+        if (npc.tieredTrades) {
+            Object.entries(npc.tieredTrades).forEach(([tier, trades]) => {
+                if (townLevel >= parseInt(tier)) allTrades = allTrades.concat(trades);
+            });
+        }
+
+        if (tradeIndex >= allTrades.length) return false;
+        const trade = allTrades[tradeIndex];
 
         // 检查是否可以交易
         if (!this.canTrade(npcId, tradeIndex)) {
@@ -215,9 +330,11 @@ const npcSystem = {
             return false;
         }
 
-        // 消耗给予的物品
+        // 消耗给予的物品（考虑好感度折扣）
+        const discount = this._getTradeDiscount(npcId);
         for (const [itemId, amount] of Object.entries(trade.give)) {
-            removeItemFromInventory(itemId, amount);
+            const actualAmount = Math.max(1, Math.ceil(amount * discount));
+            removeItemFromInventory(itemId, actualAmount);
         }
 
         // 获得接收的物品
@@ -232,6 +349,11 @@ const npcSystem = {
 
         if (typeof soundSystem !== 'undefined' && soundSystem.enabled) soundSystem.play('exchange');
         showMessage(`交易成功！获得了${trade.name}`, 'success');
+        // 记录交易到世界状态
+        if (typeof WorldState !== "undefined") {
+            WorldState.changeNPCRelation(npcId, 2);
+            WorldState.recordMerchantVisit(npcId);
+        }
         // 成就统计
         if (typeof achievementSystem !== 'undefined') {
             achievementSystem.updateStat('tradesCompleted', 1);

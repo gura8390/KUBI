@@ -74,6 +74,15 @@ const game = {
                 console.log('✓ 键盘快捷键');
             }
 
+            // 初始化调试面板
+            if (typeof DebugPanel !== 'undefined') {
+                DebugPanel.init();
+                console.log('✓ 调试面板 (~键打开)');
+            }
+
+            // 注册EventBus监听器
+            this._registerEventListeners();
+
             console.log('游戏初始化完成！');
             showMessage('欢迎来到超苦逼冒险者！', 'info');
         if (typeof EventBus !== "undefined") EventBus.emit("game:init", {});
@@ -245,6 +254,51 @@ const game = {
         showModal('背包', content, [
             { text: '关闭', action: 'hideModal();' }
         ]);
+    },
+
+    // 注册EventBus监听器
+    _registerEventListeners: function() {
+        if (typeof EventBus === 'undefined') return;
+
+        // Boss击杀后触发地图变化
+        EventBus.on('world:bossKilled', function(data) {
+            if (data.bossId === 'spiderQueen') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('spiderCave', 'monsterReduction', 0.5);
+                }
+                showMessage('蜘蛛女王被击败了！蜘蛛洞穴的怪物减少了！', 'info');
+            }
+            if (data.bossId === 'ogreChief') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('cannibalTribe', 'peaceful', true);
+                }
+                showMessage('食人魔族长被击败了！食人族部落变得安全了！', 'info');
+            }
+            if (data.bossId === 'darkSage') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('mageGuild', 'peaceful', true);
+                }
+                showMessage('黑衣贤者被击败了！魔法公会变得安全了！', 'info');
+            }
+            if (data.bossId === 'skeletonKing') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('dungeon', 'bossProgress', 5);
+                }
+                showMessage('骷髅王被击败了！地牢深层已经解锁！', 'info');
+            }
+            if (data.bossId === 'demonLord') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('dungeon', 'bossProgress', 10);
+                }
+                showMessage('魔王被击败了！地牢更深层已经解锁！', 'info');
+            }
+            if (data.bossId === 'worldEnder') {
+                if (typeof WorldState !== 'undefined') {
+                    WorldState.setMapChange('dungeon', 'cleared', true);
+                }
+                showMessage('灭世者被击败了！世界恢复了和平！', 'success');
+            }
+        }, null, EventBus.PRIORITY.NORMAL);
     },
 
     // 显示时间信息

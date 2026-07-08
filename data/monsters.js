@@ -90,6 +90,7 @@ var MONSTERS = {
         dropChance: 0.7
     },
     spiderQueen: {
+        boss: true,
         name: '蛛魔之后',
         health: 80,
         attack: 15,
@@ -146,6 +147,7 @@ var MONSTERS = {
         dropChance: 0.5
     },
     ogreChief: {
+        boss: true,
         name: '食人魔族长',
         health: 150,
         attack: 30,
@@ -170,6 +172,7 @@ var MONSTERS = {
         dropChance: 0.7
     },
     darkSage: {
+        boss: true,
         name: '黑衣贤者',
         health: 120,
         attack: 25,
@@ -210,6 +213,7 @@ var MONSTERS = {
         dropChance: 0.9
     },
     skeletonKing: {
+        boss: true,
         name: '骷髅王',
         health: 200,
         attack: 25,
@@ -218,6 +222,7 @@ var MONSTERS = {
         dropChance: 1.0
     },
     demonLord: {
+        boss: true,
         name: '魔王',
         health: 400,
         attack: 40,
@@ -227,20 +232,29 @@ var MONSTERS = {
 
     },
     vampireLord: { name: '吸血鬼领主', health: 500, attack: 35, defense: 15, drops: ['darkDust', 'soul'], dropChance: 0.6, description: '地牢15层守关者',
+        boss: true,
         abilities: 'bleed,poison' },
     lichKing: { name: '巫妖王', health: 600, attack: 40, defense: 18, drops: ['lightDust', 'darkDust', 'soul'], dropChance: 0.6, description: '地牢20层守关者',
+        boss: true,
         abilities: 'freeze,burn' },
     abyssWorm: { name: '深渊巨虫', health: 700, attack: 45, defense: 20, drops: ['dragonBone', 'soul'], dropChance: 0.5, description: '地牢25层守关者',
+        boss: true,
         abilities: 'poison,stun' },
     shadowDragon: { name: '暗影龙', health: 800, attack: 50, defense: 22, drops: ['dragonScale', 'dragonBone', 'soul'], dropChance: 0.5, description: '地牢30层守关者',
+        boss: true,
         abilities: 'burn,freeze' },
     chaosElemental: { name: '混沌元素', health: 900, attack: 55, defense: 25, drops: ['lightDust', 'darkDust', 'parts'], dropChance: 0.6, description: '地牢35层守关者',
+        boss: true,
         abilities: 'burn,freeze,poison' },
     boneColossus: { name: '白骨巨像', health: 1000, attack: 60, defense: 28, drops: ['bone', 'dragonBone', 'soul'], dropChance: 0.6, description: '地牢40层守关者',
+        boss: true,
         abilities: 'stun,bleed' },
     voidWraith: { name: '虚空亡灵', health: 1100, attack: 65, defense: 30, drops: ['darkDust', 'soul', 'lightDust'], dropChance: 0.6, description: '地牢45层守关者',
+        boss: true,
         abilities: 'freeze,poison' },
     worldEnder: { name: '灭世者', health: 1500, attack: 80, defense: 35, drops: ['dragonScale', 'dragonBone', 'lightDust', 'darkDust'], dropChance: 0.8, description: '地牢50层最终Boss',
+        lore: '传说中的灭世者，拥有毁灭世界的力量。只有最勇敢的冒险者才能挑战它。',
+        boss: true,
         abilities: 'burn,freeze,poison,stun' },
     fireLizard: { name: '火焰蜥蜴', health: 80, attack: 20, defense: 8, drops: ['fireGrass', 'iron'], dropChance: 0.5, description: '栖息在火山的蜥蜴', abilities: 'burn' },
     lavaGiant: { name: '熔岩巨人', health: 150, attack: 30, defense: 15, drops: ['iron', 'stone'], dropChance: 0.6, description: '由熔岩构成的巨人', abilities: 'burn,stun' },

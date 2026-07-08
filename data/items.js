@@ -1362,5 +1362,46 @@ var BUILDINGS = {
         description: '大幅减少怪物伤害',
         materials: { stone: 20, iron: 15, parts: 10 },
         effect: { defenseBonus: 10 }
+    },
+
+    // === 阵营专属装备 ===
+    cannibalAxe: {
+        name: '食人族战斧',
+        description: '食人族的传家武器，沾满了鲜血。',
+        type: 'weapon',
+        icon: '🪓',
+        attack: 25,
+        magicDamage: 0,
+        faction: 'cannibal',
+        stackable: false
+    },
+    cannibalArmor: {
+        name: '食人族骨甲',
+        description: '用敌人的骨头制成的铠甲。',
+        type: 'armor',
+        icon: '🦴',
+        defense: 15,
+        faction: 'cannibal',
+        stackable: false
+    },
+    mageStaff: {
+        name: '法师法杖',
+        description: '蕴含强大魔力的法杖。',
+        type: 'weapon',
+        icon: '🪄',
+        attack: 10,
+        magicDamage: 25,
+        faction: 'mage',
+        stackable: false
+    },
+    mageRobe: {
+        name: '法师长袍',
+        description: '附魔的法师长袍，提升魔法抗性。',
+        type: 'armor',
+        icon: '👘',
+        defense: 10,
+        magicDefense: 20,
+        faction: 'mage',
+        stackable: false
     }
 };

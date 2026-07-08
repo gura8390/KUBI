@@ -367,18 +367,43 @@ const mapSystem = {
         updateUI();
     },
 
-    // 采集资源
+    // 采集资源（探索度+季节加成）
     collectResources: function() {
         const map = MAPS[this.currentMap];
         if (!map || !map.resources) return;
 
+        // 获取探索度加成
+        let explorationBonus = 1.0;
+        if (typeof WorldState !== 'undefined') {
+            const visitCount = WorldState.getMapVisitCount(this.currentMap);
+            explorationBonus = 1.0 + Math.min(0.25, Math.floor(visitCount / 10) * 0.05);
+        }
+
+        // 季节加成
+        const season = player.gameTime.season;
+        const seasonBonuses = {
+            spring: { flower: 2.0, herb: 1.5, seed: 1.5 },
+            summer: { berry: 2.0, wheat: 1.5, fireGrass: 1.5 },
+            autumn: { mushroom: 2.0, wood: 1.5, rawMeat: 1.5 },
+            winter: { iceDew: 2.0, stone: 1.5, bone: 1.5 }
+        };
+        const seasonBonus = seasonBonuses[season] || {};
+
         let collected = [];
         let totalItems = 0;
 
-        // 遍历所有可能的资源
         Object.entries(map.resources).forEach(([itemId, resource]) => {
-            if (Math.random() < resource.chance) {
-                const amount = randomInt(resource.min, resource.max);
+            let adjustedChance = Math.min(1.0, resource.chance * explorationBonus);
+            // 应用季节加成
+            if (seasonBonus[itemId]) {
+                adjustedChance = Math.min(1.0, adjustedChance * seasonBonus[itemId]);
+            }
+            if (Math.random() < adjustedChance) {
+                let amount = randomInt(resource.min, resource.max);
+                // 季节加成增加数量
+                if (seasonBonus[itemId] && seasonBonus[itemId] > 1) {
+                    amount = Math.ceil(amount * 1.2);
+                }
                 if (addItemToInventory(itemId, amount)) {
                     collected.push(`${getItemName(itemId)}×${amount}`);
                     totalItems += amount;

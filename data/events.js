@@ -160,5 +160,122 @@ const EventData = {
             ] },
             { type: 'message', text: '🎩 神秘陌生人给了你帮助', msgType: 'info' }
         ]
+    },
+
+    // === 季节性事件 ===
+    springFestival: {
+        name: '春日祭典',
+        description: '春天来了，万物复苏，你感到充满希望。',
+        type: 'positive',
+        chance: 0.15,
+        season: 'spring',
+        effects: [
+            { type: 'heal', stat: 'sanity', value: 20, max: 100 },
+            { type: 'item', item: 'flower', count: 3 },
+            { type: 'message', text: '🌸 春日祭典！精神+20，获得花朵×3', msgType: 'success' }
+        ]
+    },
+    summerHarvest: {
+        name: '夏日收获',
+        description: '夏天的果实成熟了，你收获了丰富的食物。',
+        type: 'positive',
+        chance: 0.15,
+        season: 'summer',
+        effects: [
+            { type: 'item', item: 'berry', count: 5 },
+            { type: 'item', item: 'wheat', count: 3 },
+            { type: 'message', text: '☀️ 夏日收获！获得浆果×5，小麦×3', msgType: 'success' }
+        ]
+    },
+    autumnThanks: {
+        name: '秋日感恩',
+        description: '秋天是收获的季节，你感到满足。',
+        type: 'positive',
+        chance: 0.15,
+        season: 'autumn',
+        effects: [
+            { type: 'heal', stat: 'sanity', value: 15, max: 100 },
+            { type: 'item', item: 'bread', count: 3 },
+            { type: 'message', text: '🍂 秋日感恩！精神+15，获得面包×3', msgType: 'success' }
+        ]
+    },
+    winterNewYear: {
+        name: '冬日新年',
+        description: '新年的钟声响起，你许下了愿望。',
+        type: 'positive',
+        chance: 0.15,
+        season: 'winter',
+        effects: [
+            { type: 'heal', stat: 'health', value: 30, max: 100 },
+            { type: 'heal', stat: 'sanity', value: 25, max: 100 },
+            { type: 'item', item: 'gold', count: 5 },
+            { type: 'message', text: '❄️ 冬日新年！生命+30，精神+25，获得金币×5', msgType: 'success' }
+        ]
+    },
+
+    // === 天气联动事件 ===
+    stormShipwreck: {
+        name: '暴风雨沉船',
+        description: '暴风雨中发现了一艘沉船的残骸！',
+        type: 'positive',
+        chance: 0.08,
+        weather: 'heavyRain',
+        effects: [
+            { type: 'item', item: 'wood', count: 10 },
+            { type: 'item', item: 'iron', count: 3 },
+            { type: 'item', item: 'silk', count: 2 },
+            { type: 'message', text: '🚢 发现沉船残骸！获得大量物资', msgType: 'success' }
+        ]
+    },
+    lightningFire: {
+        name: '雷击火灾',
+        description: '雷电引发了一场小火灾！',
+        type: 'negative',
+        chance: 0.06,
+        weather: 'storm',
+        effects: [
+            { type: 'damage', value: 15 },
+            { type: 'message', text: '⚡ 雷击火灾！生命-15', msgType: 'error' }
+        ]
+    },
+    rainbowBlessing: {
+        name: '彩虹祝福',
+        description: '雨后出现了彩虹，你感到被祝福了。',
+        type: 'positive',
+        chance: 0.12,
+        weather: 'rainbow',
+        effects: [
+            { type: 'heal', stat: 'health', value: 20, max: 100 },
+            { type: 'heal', stat: 'sanity', value: 15, max: 100 },
+            { type: 'message', text: '🌈 彩虹祝福！生命+20，精神+15', msgType: 'success' }
+        ]
+    },
+
+    // === 玩家行为触发事件 ===
+    battleFatigue: {
+        name: '战斗疲劳',
+        description: '连续战斗让你感到疲惫不堪。',
+        type: 'negative',
+        chance: 0.0,
+        season: null,
+        triggerCount: { battles: 10 },
+        effects: [
+            { type: 'stat', stat: 'stamina', value: -20 },
+            { type: 'stat', stat: 'sanity', value: -10 },
+            { type: 'message', text: '😫 战斗疲劳！体力-20，精神-10', msgType: 'warning' }
+        ]
+    },
+    craftingInspiration: {
+        name: '制作灵感',
+        description: '连续制作让你获得了灵感！',
+        type: 'positive',
+        chance: 0.0,
+        season: null,
+        triggerCount: { crafts: 10 },
+        effects: [
+            { type: 'xp', value: 100 },
+            { type: 'heal', stat: 'sanity', value: 15, max: 100 },
+            { type: 'message', text: '💡 制作灵感！经验+100，精神+15', msgType: 'success' }
+        ]
     }
 };
