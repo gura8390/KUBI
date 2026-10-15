@@ -1,0 +1,6 @@
+# Repository hygiene: generated and machine-local files.
+node_modules/
+.DS_Store
+/docs/
+/交手.md
+/更新进展.md
