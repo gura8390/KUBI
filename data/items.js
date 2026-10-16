@@ -1223,7 +1223,13 @@ var ITEMS = {
     steelSword: { name: '钢剑', type: 'weapon', description: '坚固耐用的钢制武器', stackable: false, icon: '⚔️', attack: 18 },
     enchantedSword: { name: '附魔剑', type: 'weapon', description: '被魔法强化的剑', stackable: false, icon: '⚔️', attack: 25, magicDamage: 12 },
     crystalStaff: { name: '水晶法杖', type: 'weapon', description: '增幅魔法的法杖', stackable: false, icon: '🪄', attack: 12, magicDamage: 20 },
-    obsidianAxe: { name: '黑曜石斧', type: 'weapon', description: '极其锋利的黑曜石武器', stackable: false, icon: '🪓', attack: 30 }
+    obsidianAxe: { name: '黑曜石斧', type: 'weapon', description: '极其锋利的黑曜石武器', stackable: false, icon: '🪓', attack: 30 },
+
+    // === 阵营专属装备 ===
+    cannibalAxe: { name: '食人族战斧', description: '食人族的传家武器，沾满了鲜血。', type: 'weapon', icon: '🪓', attack: 25, magicDamage: 0, faction: 'cannibal', stackable: false },
+    cannibalArmor: { name: '食人族骨甲', description: '用敌人的骨头制成的铠甲。', type: 'armor', icon: '🦴', defense: 15, faction: 'cannibal', stackable: false },
+    mageStaff: { name: '法师法杖', description: '蕴含强大魔力的法杖。', type: 'weapon', icon: '🪄', attack: 10, magicDamage: 25, faction: 'mage', stackable: false },
+    mageRobe: { name: '法师长袍', description: '附魔的法师长袍，提升魔法抗性。', type: 'armor', icon: '👘', defense: 10, magicDefense: 20, faction: 'mage', stackable: false }
 
 };
 
@@ -1364,44 +1370,4 @@ var BUILDINGS = {
         effect: { defenseBonus: 10 }
     },
 
-    // === 阵营专属装备 ===
-    cannibalAxe: {
-        name: '食人族战斧',
-        description: '食人族的传家武器，沾满了鲜血。',
-        type: 'weapon',
-        icon: '🪓',
-        attack: 25,
-        magicDamage: 0,
-        faction: 'cannibal',
-        stackable: false
-    },
-    cannibalArmor: {
-        name: '食人族骨甲',
-        description: '用敌人的骨头制成的铠甲。',
-        type: 'armor',
-        icon: '🦴',
-        defense: 15,
-        faction: 'cannibal',
-        stackable: false
-    },
-    mageStaff: {
-        name: '法师法杖',
-        description: '蕴含强大魔力的法杖。',
-        type: 'weapon',
-        icon: '🪄',
-        attack: 10,
-        magicDamage: 25,
-        faction: 'mage',
-        stackable: false
-    },
-    mageRobe: {
-        name: '法师长袍',
-        description: '附魔的法师长袍，提升魔法抗性。',
-        type: 'armor',
-        icon: '👘',
-        defense: 10,
-        magicDefense: 20,
-        faction: 'mage',
-        stackable: false
-    }
 };
